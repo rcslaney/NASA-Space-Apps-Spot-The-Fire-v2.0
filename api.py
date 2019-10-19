@@ -131,7 +131,7 @@ def get_route():
 
 
 @api.route('/api/reports')
-ef get_reports():
+def get_reports():
     # x,y is center of screen
     args = request.args
     if len(args) != 3:
