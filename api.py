@@ -52,6 +52,84 @@ def get_poi():
             return json.dumps({"status": 'success', 'status_extended': '', 'return': ret_val})
 
 
+@api.route('/api/zones')
+def get_zones():
+    # x,y is center of screen
+    args = request.args
+    if len(args) != 3:
+        return json.dumps({'status': 'error', 'status_extended': 'This function takes 3 arguments: lat and lng and r'})
+    else:
+        if 'lat' not in args.keys() or ('lng' not in args.keys()) or ('r' not in args.keys()):
+            return json.dumps({'status': 'error', 'status_extended': 'This function takes 3 arguments: lat and lng and r'})
+        else:
+            lat = float(args['lat'])
+            lng = float(args['lng'])
+            r = float(args['r'])
+            # Connect to SQL Server
+            cnx = None
+            try:
+                cnx = connect()
+            except sql.Error as e:
+                return json.dumps({'status': 'error', 'status_extended': 'Couldnt connect to sql database'})
+
+            cursor = cnx.cursor(dictionary=True)
+            query = ("SELECT ST_AsText(zonepoly) as wkt, type, description, timestamp "
+                     "FROM zones "
+                     "WHERE (ABS(X(Centroid(zonepoly)) - %s) <= %s) AND (ABS(Y(Centroid(zonepoly)) - %s ) <= %s) "
+                     "ORDER BY timestamp DESC")
+            # Do the query
+            cursor.execute(query, [float(lat), float(r), float(lng), float(r)])
+            ret_val = cursor.fetchall()
+            # Add distance from query point to return
+            for val in enumerate(ret_val):
+                val["lat"] = float(val['lat'])
+                val['lng'] = float(val['lng'])
+                val["wkt"] = wkt.loads(val["wkt"])
+                val["timestamp"] = datetime.datetime.strftime(val["timestamp"], '%Y-%m-%d %H:%M:%S')
+            cursor.close()
+            cnx.close()
+            return json.dumps({"status": 'success', 'status_extended': '', 'return': ret_val})
+
+
+@api.route('/api/routes')
+def get_route():
+    # x,y is center of screen
+    args = request.args
+    if len(args) != 3:
+        return json.dumps({'status': 'error', 'status_extended': 'This function takes 3 arguments: lat and lng and r'})
+    else:
+        if 'lat' not in args.keys() or ('lng' not in args.keys()) or ('r' not in args.keys()):
+            return json.dumps({'status': 'error', 'status_extended': 'This function takes 3 arguments: lat and lng and r'})
+        else:
+            lat = float(args['lat'])
+            lng = float(args['lng'])
+            r = float(args['r'])
+            # Connect to SQL Server
+            cnx = None
+            try:
+                cnx = connect()
+            except sql.Error as e:
+                return json.dumps({'status': 'error', 'status_extended': 'Couldnt connect to sql database'})
+
+            cursor = cnx.cursor(dictionary=True)
+            query = ("SELECT ST_AsEncodedPolyline(polyline) as line, reputation, title, description, timestamp "
+                     "FROM routes "
+                     "WHERE ABS(X(polyline.ST_PointN(ST.NumPoints()/2)) - %s) <= %s AND ABS(Y(polyline.ST_PointN(ST.NumPoints()/2)) - %s) <= %s"
+                     "ORDER BY timestamp DESC")
+            # Do the query
+            cursor.execute(query, [float(lat), float(r), float(lng), float(r)])
+            ret_val = cursor.fetchall()
+            # Add distance from query point to return
+            for val in enumerate(ret_val):
+                val["lat"] = float(val['lat'])
+                val['lng'] = float(val['lng'])
+                val["wkt"] = wkt.loads(val["wkt"])
+                val["timestamp"] = datetime.datetime.strftime(val["timestamp"], '%Y-%m-%d %H:%M:%S')
+            cursor.close()
+            cnx.close()
+            return json.dumps({"status": 'success', 'status_extended': '', 'return': ret_val})
+
+
 @api.route('/api/reports')
 def get_reports():
     # x,y is center of screen
@@ -82,8 +160,8 @@ def get_reports():
             ret_val = cursor.fetchall()
             # Add distance from query point to return
             for index, row in enumerate(ret_val):
-                ret_val[index]["lat"] = float(ret_val[index]['lng'])
-                ret_val[index]['lng'] = float(ret_val[index['lng']])
+                ret_val[index]["lat"] = float(ret_val[index]['lat'])
+                ret_val[index]['lng'] = float(ret_val[index]['lng'])
                 ret_val[index]['dst'] = geopy.distance.distance((row['lat'], row['lng']), (float(lat), float(lng))).km
             cursor.close()
             cnx.close()
