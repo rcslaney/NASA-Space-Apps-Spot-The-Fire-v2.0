@@ -82,6 +82,10 @@ body {
   background: url(../images/install.svg) center center no-repeat;
 }
 
+.header #butMenu {
+  background: url(../images/menu.svg) center center no-repeat;
+}
+
 .header .powered-by {
   color: white;
   font-size: 0.6em;

@@ -12,6 +12,7 @@
 <body>
 
 <header class="header">
+    <button id="butRefresh" aria-label="Refresh"></button>
     <h1>Fyre</h1>
     <button id="butInstall" aria-label="Install" hidden></button>
     <button id="butRefresh" aria-label="Refresh"></button>
@@ -57,12 +58,31 @@
             zoomControl: false
         });
 
-        var heatmap = new google.maps.visualization.HeatmapLayer({
-            data: heatMapData
+        heatmap = new google.maps.visualization.HeatmapLayer({
+            data: heatMapData,
+            dissipating: false
         });
         heatmap.setMap(map);
-    </script>
 
+        function addHeatMapData() {
+            //
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState === 4 && this.status === 200) {
+                    heatmap_data = JSON.parse(xhttp.responseText);
+                    heatmap_data_object = [];
+                    for(let key in heatmap_data) {
+                        datum = heatmap_data[key];
+                        heatmap_data_object.push({location: new google.maps.LatLng(datum[0], datum[1]), weight: datum[2]})
+                    }
+                    heatmap.setOptions({data: heatmap_data_object});
+                    console.log(heatmap_data)
+                }
+            };
+            xhttp.open("GET", "/api/fire_data", true);
+            xhttp.send();
+        }
+    </script>
 
 
     <div id="addDialogContainer">

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Button test</title>
+    <style>
+        .big_button, .small_button {
+            background: #2e3750;
+            text-align: center;
+            border: none;
+            color: white;
+            position: absolute;
+        }
+
+        .big_button {
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            line-height: 50px;
+            font-size: 24px;
+            bottom: 10px;
+            left: 10px;
+            z-index: 1000;
+        }
+
+        .button_group > div > button:nth-child(1) {
+            bottom: 80px;
+        }
+
+        .button_group > div > button:nth-child(2) {
+            bottom: 120px;
+        }
+
+        .button_group > div > button:nth-child(3) {
+            bottom: 160px;
+        }
+
+        #buttons div:nth-child(2) {
+            right: 70px;
+        }
+
+        #buttons div:nth-child(3) {
+            right: 140px;
+        }
+
+        .small_button {
+            width: 30px;
+            height: 30px;
+            border-radius: 15px;
+            line-height: 30px;
+            left: 20px;
+            transition: bottom 0.5s;
+        }
+
+        .button_group {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            width: 70px;
+            height: 20px;
+            overflow: visible;
+        }
+    </style>
+    <script>
+        function buttonClick(e) {
+            bg = e.target.parentElement;
+            console.log(bg)
+            sbs = bg.children[1].children;
+            if (sbs[0].style.bottom === "") {
+                for (key in sbs) {
+                    sbs[key].style.bottom = "20px";
+                }
+            } else {
+                for (key in sbs) {
+                    sbs[key].style.bottom = "";
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+<div id="buttons">
+    <div class="button_group">
+        <button class="big_button">+</button>
+        <div>
+            <button class="small_button b1">A</button>
+            <button class="small_button b2">B</button>
+            <button class="small_button b3">C</button>
+        </div>
+    </div>
+    <div class="button_group">
+        <button class="big_button">+</button>
+        <div>
+            <button class="small_button b1">A</button>
+            <button class="small_button b2">B</button>
+            <button class="small_button b3">C</button>
+        </div>
+    </div>
+    <div class="button_group">
+        <button class="big_button">+</button>
+        <div>
+            <button class="small_button b1">A</button>
+            <button class="small_button b2">B</button>
+            <button class="small_button b3">C</button>
+        </div>
+    </div>
+</div>
+<script>
+    big_buttons = document.getElementsByClassName("big_button");
+    for(let key in big_buttons) {
+        big_buttons[key].addEventListener("click", buttonClick)
+    }
+</script>
+</body>
+</html>
