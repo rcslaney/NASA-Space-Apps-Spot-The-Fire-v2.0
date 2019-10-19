@@ -302,7 +302,66 @@ body {
     border-bottom: 1px solid #BBB;
 }
 
-#scrollable_bubble {
+input, textarea {
+    border: none;
+    outline: none;
+    border-radius: 5px;
     padding: 10px;
-    overflow: scroll;
+}
+
+#scrollable_bubble {
+    padding: 15px 30px;
+    overflow: hidden auto;
+    flex-grow: 1;
+}
+
+#uploadfile {
+    padding: 10px;
+    background: #44e;
+    font-weight: bold;
+    border-radius: 5px;
+    color: white;
+    white-space: nowrap;
+}
+
+#fireimagetext {
+    padding: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#reportform > textarea {
+    padding: 10px;
+    width: 100%;
+    height: 100px;
+    border: none;
+    margin: 10px 0;
+    box-sizing: border-box;
+    border-radius: 5px;
+}
+
+#fireimage {
+    opacity: 0;
+    position: absolute;
+    width: 0.1px;
+    white-space: nowrap;
+}
+
+#reportform > div {
+    display: flex;
+}
+
+#crosshair {
+    line-height: 48px;
+    position: absolute;
+    height: 48px;
+    width: 48px;
+    left: calc(50vw - 24px);
+    top: calc(50vh - 24px);
+    font-weight: lighter;
+    color: white;
+    font-size: 48px;
+    z-index: 100;
+    text-align: center;
 }

@@ -1,0 +1,11 @@
+
+<form id="reportform">
+    <div style="display: flex;">
+        <input id="fireimage" name="fireimage" type="file" accept="image/*;capture=camera">
+        <label for="fireimage" id="uploadfile">Upload image</label>
+        <span id="fireimagetext">No file</span>
+    </div>
+    <textarea placeholder="Enter a description of the reported event here"></textarea>
+    <label for="lat">Latitude:&nbsp;&nbsp;&nbsp; </label><input type="text" name="lat" id="lat"><br><br>
+    <label for="lat">Longitude: </label><input type="text" name="lng" id="lng" onload="navigator.geolocation.getCurrentPosition(populateFormPosition);">
+</form>
