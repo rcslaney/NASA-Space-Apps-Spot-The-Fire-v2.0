@@ -131,35 +131,29 @@ def send_route():
     # x,y is center of screen
     args = request.args
     real_args = ['polyline', 'reputation', 'title', 'description']
-    if len(args) != 3:
+    if set(args) != set(real_args):
         return json.dumps({'status': 'error', 'status_extended': f'This function takes {len(real_args)} arguments: {real_args}'})
-    else:
-        if set(args) != set(real_args):
-            return json.dumps({'status': 'error', 'status_extended': f'This function takes {len(real_args)} arguments: {real_args}'})
-        else:
-            polyline = args['polyline']
-            reputation = args['reputation']
-            title = args['title']
-            description = args['description']
-            # Connect to SQL Server
-            cnx = None
-            try:
-                cnx = connect()
-            except sql.Error as e:
-                return json.dumps({'status': 'error', 'status_extended': 'Couldnt connect to sql database'})
+    polyline = args['polyline']
+    reputation = args['reputation']
+    title = args['title']
+    description = args['description']
+    # Connect to SQL Server
+    cnx = None
+    try:
+        cnx = connect()
+    except sql.Error as e:
+        return json.dumps({'status': 'error', 'status_extended': 'Couldnt connect to sql database'})
 
-            cursor = cnx.cursor(dictionary=True)
-            query = ("INSERT INTO routes (ST_LineFromEncodedPolyline(polyline),reputation,title,description)"
-                     "VALUES (%s, %s,%s,%s)")
-            # Do the query
-            cursor.execute(query, [polyline, reputation,title,description])
-            ret_val = cursor.fetchall()
-            # Add distance from query point to return
-            for val in enumerate(ret_val):
-                val["timestamp"] = datetime.datetime.strftime(val["timestamp"], '%Y-%m-%d %H:%M:%S')
-            cursor.close()
-            cnx.close()
-            return json.dumps({"status": 'success', 'status_extended': '', 'return': ret_val})
+    cursor = cnx.cursor(dictionary=True)
+    query = ("INSERT INTO routes (ST_LineFromEncodedPolyline(polyline),reputation,title,description)"
+                "VALUES (%s, %s,%s,%s)")
+    # Do the query
+    cursor.execute(query, [polyline, reputation,title,description])
+    ret_val = cursor.fetchall()
+    # Add distance from query point to return
+    cursor.close()
+    cnx.close()
+    return json.dumps({"status": 'success', 'status_extended': '', 'return': ret_val})
 
 
 
@@ -222,7 +216,7 @@ def get_messages():
 
             cursor = cnx.cursor(dictionary=True)
             query = ("SELECT messages.id as mid,userfromid,u1.firstname as userfromfirst, u1.lastname as userfromlast,usertoid, u2.firstname as usertofirst, "
-                     "u2.lastname as usertolast,message, timestamp "
+                     "u2.lastname as usertolast, u1.profilepicture path as userfrompic, u2.profilepicturepath as usertopic, message, timestamp "
                      "FROM messages "
                      "JOIN users as u1 ON userfromid=u1.id "
                      "JOIN users as u2 ON usertoid=u2.id "
@@ -236,6 +230,14 @@ def get_messages():
             cursor.close()
             cnx.close()
             for val in ret_val:
+                if(val["userfromid"] == userid):
+                    val["otheruserpic"] = val["usertopic"]
+                elif(val["usertoid"] == userid):
+                    val["otheruserpic"] = val["userfrompic"]
+                else:
+                    print("What? Fail in messages call")
+                del(val["usertopic"])
+                del(val["userfrompic"])
                 val["timestamp"] = datetime.datetime.strftime(val["timestamp"], '%Y-%m-%d %H:%M:%S')
             # del(latest[int(userid)])
             return json.dumps({"status": 'success', 'status_extended': '', 'return': ret_val})
