@@ -6,6 +6,10 @@ import json
 import os
 import random
 import string
+from api import api
+from api import connect
+import mysql.connector as sql
+
 
 UPLOAD_FOLDER = 'uploads/'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
@@ -14,6 +18,8 @@ ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 app = Flask(__name__, static_url_path='')
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+app.register_blueprint(api)
 
 @app.route('/html/<path:path>')
 def send_html(path):
@@ -44,7 +50,7 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-@app.route('/upload', methods=['GET', 'POST'])
+@app.route('/uploadreport', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
         # check if the post request has the file part
@@ -62,7 +68,27 @@ def upload_file():
             ext = filename.split(".")[len(filename.split(".")) - 1]
             saving_filename = x = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(16)) + "." + ext
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], saving_filename))
-            return redirect(os.path.join(app.config['UPLOAD_FOLDER'], saving_filename))
+            # Connect to SQL Server
+            cnx = None
+            try:
+                cnx = connect()
+            except sql.Error as e:
+                return json.dumps({'status': 'error', 'status_extended': 'Couldnt connect to sql database'})
+
+            cursor = cnx.cursor()
+            query = ("INSERT INTO reports (lat,lng,text,imgpath,score,userid,reporttype) "
+                     "VALUES (%s,%s,%s,%s,%s,%s,%s) ")
+
+            # Do the query
+            try:
+                cursor.execute(query, [request.form["lat"], request.form["lng"], request.form["reportdescription"], os.path.join(app.config['UPLOAD_FOLDER'], saving_filename), 0, 1, "fire"])
+                cnx.commit()
+            except Exception as e:
+                return json.dumps({"status": 'error', 'status_extended': 'Failed to submit the insert query: ' + repr(e)})
+
+            # Close connection
+            cursor.close()
+            cnx.close()
     return '''
         <!doctype html>
         <title>Upload new File</title>

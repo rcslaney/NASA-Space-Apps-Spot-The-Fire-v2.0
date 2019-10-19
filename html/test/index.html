@@ -226,10 +226,10 @@
             var xhr = new XMLHttpRequest();
             xhr.onreadystatechange = function () {
                 if (this.readyState === 4 && this.status === 200) {
-                    openPopup("Report uploaded!", "Reporting", "<p>Your report has been uploaded, thankyou for your help.</p>");
+                    openPopup("Report uploaded!", "Reporting", "<p>Your report has been uploaded, thank you for your help.</p>");
                 }
             };
-            xhr.open('POST', '/upload', true);
+            xhr.open('POST', '/uploadreport', true);
             var formData = new FormData();
             formData.append("file", document.getElementById("fireimage").files[0]);
             formData.append("lat", document.getElementById("lat").value);
