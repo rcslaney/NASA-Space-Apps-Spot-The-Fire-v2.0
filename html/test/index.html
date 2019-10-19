@@ -18,6 +18,7 @@
     <div id="scrollable_bubble"></div>
 </div>
 <main class="main">
+    <div id="crosshair">+</div>
     <div id="googleMap" style="width:100%;height:100%;"></div>
 
     <script type="text/javascript"
@@ -115,14 +116,19 @@
     <div id="buttons">
         <div class="button_group bl">
             <div>
-                <button class="small_button b1" style="bottom: 20px;" onclick="show_messages()"><img src="images/icons/message.svg" style="width: 18px; height: 18px; margin-top: 10px;"></button>
+                <button class="small_button b1" style="bottom: 20px;" onclick="show_messages()"><img
+                        src="images/icons/message.svg" style="width: 18px; height: 18px; margin-top: 10px;"></button>
                 <button class="small_button b2" style="bottom: 20px;">B</button>
                 <button class="small_button b3" style="bottom: 20px;">C</button>
             </div>
-            <button class="big_button" onclick="buttonClick(this)"><img src="images/icons/account-group.svg" style="width: 36px; height: 36px; margin-top: 12px;"></button>
+            <button class="big_button" onclick="buttonClick(this)"><img src="images/icons/account-group.svg"
+                                                                        style="width: 36px; height: 36px; margin-top: 12px;">
+            </button>
         </div>
         <div class="button_group bc">
-            <button class="big_button" onclick="report()"><img src="images/icons/fire.svg" style="width: 64px; height: 64px; margin-top: 12px;"></button>
+            <button class="big_button" onclick='openPopupPage("Report fire", "Reporting", "pages/report.html")'><img src="images/icons/fire.svg"
+                                                               style="width: 64px; height: 64px; margin-top: 12px;">
+            </button>
         </div>
         <div class="button_group br">
             <div>
@@ -176,17 +182,38 @@
         }
 
         function report() {
-            openPopup("Send report", "Reporting", "<form><input type=\"file\" accept=\"image/*;capture=camera\"></form>")
+            openPopup("Send report", "Reporting", "<form><input id=\"fireimage\" name=\"fireimage\" type=\"file\" accept=\"image/*;capture=camera\" style='opacity: 0; position: absolute; width: 0.1px'><label for='fireimage' id='uploadfile'>Upload image</label><span id='fireimagetext'></span></form>")
+            document.getElementById("fireimage").addEventListener("change", function (e) {
+                document.getElementById("fireimagetext").innerHTML = "File: " + e.target.files[0]["name"];
+            })
+        }
+
+        function openPopupPage(title, title2, pagepath) {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState === 4 && this.status === 200) {
+                    // Typical action to be performed when the document is ready:
+                    openPopup(title, title2, xhttp.responseText);
+                }
+            };
+            xhttp.open("GET", pagepath, true);
+            xhttp.send();
         }
 
         history.replaceState({"name": "home"}, null, "#home")
 
         window.onpopstate = function (event) {
             console.log(event.state);
-            if(event.state["name"] === "home") {
+            if (event.state["name"] === "home") {
                 close_popup()
             }
         };
+
+        function populateFormPosition(position) {
+            console.log(position)
+            document.getElementById("lat").value = position.coords.latitude;
+            document.getElementById("lng").value = position.coords.longitude;
+        }
     </script>
 
     <script src="scripts/luxon-1.11.4.js"></script>
