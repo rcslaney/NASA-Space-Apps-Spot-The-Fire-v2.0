@@ -25,17 +25,45 @@
 
     <div id="googleMap" style="width:100%;height:100%;"></div>
 
+    <script type="text/javascript"
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC24s5UrWB7uiAPHImehxTb-5kaidfpZpk&libraries=visualization"></script>
+
     <script>
-        function myMap() {
-            var mapProp = {
-                center: new google.maps.LatLng(51.508742, -0.120850),
-                zoom: 5,
-            };
-            var map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
-        }
+        /* Data points defined as a mixture of WeightedLocation and LatLng objects */
+        var heatMapData = [
+            {location: new google.maps.LatLng(37.782, -122.447), weight: 0.5},
+            new google.maps.LatLng(37.782, -122.445),
+            {location: new google.maps.LatLng(37.782, -122.443), weight: 2},
+            {location: new google.maps.LatLng(37.782, -122.441), weight: 3},
+            {location: new google.maps.LatLng(37.782, -122.439), weight: 2},
+            new google.maps.LatLng(37.782, -122.437),
+            {location: new google.maps.LatLng(37.782, -122.435), weight: 0.5},
+
+            {location: new google.maps.LatLng(37.785, -122.447), weight: 3},
+            {location: new google.maps.LatLng(37.785, -122.445), weight: 2},
+            new google.maps.LatLng(37.785, -122.443),
+            {location: new google.maps.LatLng(37.785, -122.441), weight: 0.5},
+            new google.maps.LatLng(37.785, -122.439),
+            {location: new google.maps.LatLng(37.785, -122.437), weight: 2},
+            {location: new google.maps.LatLng(37.785, -122.435), weight: 3}
+        ];
+
+        var sanFrancisco = new google.maps.LatLng(37.774546, -122.433523);
+
+        map = new google.maps.Map(document.getElementById('googleMap'), {
+            center: sanFrancisco,
+            zoom: 13,
+            mapTypeId: 'satellite',
+            zoomControl: false
+        });
+
+        var heatmap = new google.maps.visualization.HeatmapLayer({
+            data: heatMapData
+        });
+        heatmap.setMap(map);
     </script>
 
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC24s5UrWB7uiAPHImehxTb-5kaidfpZpk&callback=myMap"></script>
+
 
     <div id="addDialogContainer">
         <div class="dialog">
