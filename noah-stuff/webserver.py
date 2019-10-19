@@ -266,7 +266,7 @@ def send_message():
 def send_poi():
     args = request.args
     real_args = ["lat", "lng", "title", "description", "userid"]
-    if (len(args) != 3):
+    if (len(args) != 5):
         return json.dumps({'status': 'error', 'status_extended': 'This function takes 5 arguments: lat, lng, title, description, userid'})
     else:
         if (set(real_args) != set(args)):
@@ -289,13 +289,16 @@ def send_poi():
                      "VALUES (%s,%s,%s,%s,%s) ")
 
             # Do the query
-            cursor.execute(query, [lat, lng, title, description, userid])
-            ret_val = cursor.fetchall()
+            try:
+                cursor.execute(query, [lat, lng, title, description, userid])
+                cnx.commit()
+            except:
+                return json.dumps({"status": 'error', 'status_extended': 'Failed to submit the insert query'})
 
             # Close connection
             cursor.close()
             cnx.close()
-            return json.dumps({"status": 'success', 'status_extended': '', 'return': ret_val})
+            return json.dumps({"status": 'success', 'status_extended': ''})
 
 
 @app.route('/html/<path:path>')
