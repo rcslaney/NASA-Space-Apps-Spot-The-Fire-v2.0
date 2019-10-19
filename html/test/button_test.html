@@ -64,7 +64,7 @@
     </style>
     <script>
         function buttonClick(e) {
-            bg = e.target.parentElement;
+            bg = e.parentElement;
             console.log(bg)
             sbs = bg.children[1].children;
             if (sbs[0].style.bottom === "") {
@@ -82,35 +82,29 @@
 <body>
 <div id="buttons">
     <div class="button_group">
-        <button class="big_button">+</button>
+        <button class="big_button" onclick="buttonClick(this)">+</button>
         <div>
-            <button class="small_button b1">A</button>
-            <button class="small_button b2">B</button>
-            <button class="small_button b3">C</button>
+            <button class="small_button b1" style="bottom: 20px;">A</button>
+            <button class="small_button b2" style="bottom: 20px;">B</button>
+            <button class="small_button b3" style="bottom: 20px;">C</button>
         </div>
     </div>
     <div class="button_group">
         <button class="big_button">+</button>
         <div>
-            <button class="small_button b1">A</button>
-            <button class="small_button b2">B</button>
-            <button class="small_button b3">C</button>
+            <button class="small_button b1" style="bottom: 20px;">A</button>
+            <button class="small_button b2" style="bottom: 20px;">B</button>
+            <button class="small_button b3" style="bottom: 20px;">C</button>
         </div>
     </div>
     <div class="button_group">
-        <button class="big_button">+</button>
+        <button class="big_button" onclick="buttonClick(this)">+</button>
         <div>
-            <button class="small_button b1">A</button>
-            <button class="small_button b2">B</button>
-            <button class="small_button b3">C</button>
+            <button class="small_button b1" style="bottom: 20px;">A</button>
+            <button class="small_button b2" style="bottom: 20px;">B</button>
+            <button class="small_button b3" style="bottom: 20px;">C</button>
         </div>
     </div>
 </div>
-<script>
-    big_buttons = document.getElementsByClassName("big_button");
-    for(let key in big_buttons) {
-        big_buttons[key].addEventListener("click", buttonClick)
-    }
-</script>
 </body>
 </html>

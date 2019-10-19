@@ -109,6 +109,50 @@
         </div>
     </div>
 
+    <div id="buttons">
+        <div class="button_group">
+            <button class="big_button" onclick="buttonClick(this)">+</button>
+            <div>
+                <button class="small_button b1" style="bottom: 20px;">A</button>
+                <button class="small_button b2" style="bottom: 20px;">B</button>
+                <button class="small_button b3" style="bottom: 20px;">C</button>
+            </div>
+        </div>
+        <div class="button_group">
+            <button class="big_button">+</button>
+            <div>
+                <button class="small_button b1" style="bottom: 20px;">A</button>
+                <button class="small_button b2" style="bottom: 20px;">B</button>
+                <button class="small_button b3" style="bottom: 20px;">C</button>
+            </div>
+        </div>
+        <div class="button_group">
+            <button class="big_button" onclick="buttonClick(this)">+</button>
+            <div>
+                <button class="small_button b1" style="bottom: 20px;">A</button>
+                <button class="small_button b2" style="bottom: 20px;">B</button>
+                <button class="small_button b3" style="bottom: 20px;">C</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function buttonClick(e) {
+            bg = e.parentElement;
+            console.log(bg)
+            sbs = bg.children[1].children;
+            if (sbs[0].style.bottom === "") {
+                for (key in sbs) {
+                    sbs[key].style.bottom = "20px";
+                }
+            } else {
+                for (key in sbs) {
+                    sbs[key].style.bottom = "";
+                }
+            }
+        }
+    </script>
+
     <script src="scripts/luxon-1.11.4.js"></script>
     <script src="scripts/app.js"></script>
 </body>
