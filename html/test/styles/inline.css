@@ -364,4 +364,6 @@ input, textarea {
     font-size: 48px;
     z-index: 100;
     text-align: center;
+    user-select: none;
+    pointer-events: none;
 }

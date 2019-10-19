@@ -193,6 +193,7 @@
             xhttp.onreadystatechange = function () {
                 if (this.readyState === 4 && this.status === 200) {
                     // Typical action to be performed when the document is ready:
+                    history.pushState({"name": "title", "data": xhttp.responseText}, null, "#" + title)
                     openPopup(title, title2, xhttp.responseText);
                 }
             };
@@ -209,10 +210,32 @@
             }
         };
 
-        function populateFormPosition(position) {
+        function populateFormPositionGPS(position) {
             console.log(position)
             document.getElementById("lat").value = position.coords.latitude;
             document.getElementById("lng").value = position.coords.longitude;
+        }
+
+        function populateFormPositionMap() {
+            position = map.getCenter();
+            document.getElementById("lat").value = position.lat();
+            document.getElementById("lng").value = position.lng();
+        }
+
+        function submitReport() {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function () {
+                if (this.readyState === 4 && this.status === 200) {
+                    openPopup("Report uploaded!", "Reporting", "<p>Your report has been uploaded, thankyou for your help.</p>");
+                }
+            };
+            xhr.open('POST', '/upload', true);
+            var formData = new FormData();
+            formData.append("file", document.getElementById("fireimage").files[0]);
+            formData.append("lat", document.getElementById("lat").value);
+            formData.append("lng", document.getElementById("lng").value);
+            formData.append("reportdescription", document.getElementById("reportdescription").value);
+            xhr.send(formData); // Simple!
         }
     </script>
 
