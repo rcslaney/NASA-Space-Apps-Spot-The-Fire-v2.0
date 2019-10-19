@@ -1,20 +1,3 @@
-/*
- * @license
- * Your First PWA Codelab (https://g.co/codelabs/pwa)
- * Copyright 2019 Google Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License
- */
 'use strict';
 
 const weatherApp = {
@@ -167,47 +150,6 @@ function getForecastFromCache(coords) {
 }
 
 /**
- * Get's the HTML element for the weather forecast, or clones the template
- * and adds it to the DOM if we're adding a new item.
- *
- * @param {Object} location Location object
- * @return {Element} The element for the weather forecast.
- */
-function getForecastCard(location) {
-  const id = location.geo;
-  const card = document.getElementById(id);
-  if (card) {
-    return card;
-  }
-  const newCard = document.getElementById('weather-template').cloneNode(true);
-  newCard.querySelector('.location').textContent = location.label;
-  newCard.setAttribute('id', id);
-  newCard.querySelector('.remove-city')
-      .addEventListener('click', removeLocation);
-  document.querySelector('main').appendChild(newCard);
-  newCard.removeAttribute('hidden');
-  return newCard;
-}
-
-/**
- * Gets the latest weather forecast data and updates each card with the
- * new data.
- */
-function updateData() {
-  Object.keys(weatherApp.selectedLocations).forEach((key) => {
-    const location = weatherApp.selectedLocations[key];
-    const card = getForecastCard(location);
-    // CODELAB: Add code to call getForecastFromCache
-
-    // Get the forecast data from the network.
-    getForecastFromNetwork(location.geo)
-        .then((forecast) => {
-          renderForecast(card, forecast);
-        });
-  });
-}
-
-/**
  * Saves the list of locations.
  *
  * @param {Object} locations The list of locations to save.
@@ -246,10 +188,9 @@ function loadLocationList() {
 function init() {
   // Get the location list, and update the UI.
   weatherApp.selectedLocations = loadLocationList();
-  updateData();
+
 
   // Set up the event handlers for all of the buttons.
-  document.getElementById('butRefresh').addEventListener('click', updateData);
   document.getElementById('butAdd').addEventListener('click', toggleAddDialog);
   document.getElementById('butDialogCancel')
       .addEventListener('click', toggleAddDialog);
