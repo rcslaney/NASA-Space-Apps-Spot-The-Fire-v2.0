@@ -10,20 +10,11 @@
     <link rel="manifest" href="manifest.json">
 </head>
 <body>
-
-<header class="header">
-    <button id="butRefresh" aria-label="Refresh"></button>
-    <h1>Fyre</h1>
-    <button id="butInstall" aria-label="Install" hidden></button>
-    <button id="butRefresh" aria-label="Refresh"></button>
-</header>
-
+<div id="bubble">
+    <h3 class="title">NEWS</h3>
+    <h3 class="time">4:20pm</h3>
+</div>
 <main class="main">
-
-    <button id="butAdd" class="fab" aria-label="Add">
-        <span class="icon add"></span>
-    </button>
-
     <div id="googleMap" style="width:100%;height:100%;"></div>
 
     <script type="text/javascript"
@@ -55,7 +46,10 @@
             center: sanFrancisco,
             zoom: 13,
             mapTypeId: 'satellite',
-            zoomControl: false
+            zoomControl: false,
+            mapTypeControl: false,
+            streetViewControl: false,
+            fullscreenControl: false
         });
 
         heatmap = new google.maps.visualization.HeatmapLayer({
@@ -71,9 +65,12 @@
                 if (this.readyState === 4 && this.status === 200) {
                     heatmap_data = JSON.parse(xhttp.responseText);
                     heatmap_data_object = [];
-                    for(let key in heatmap_data) {
+                    for (let key in heatmap_data) {
                         datum = heatmap_data[key];
-                        heatmap_data_object.push({location: new google.maps.LatLng(datum[0], datum[1]), weight: datum[2]})
+                        heatmap_data_object.push({
+                            location: new google.maps.LatLng(datum[0], datum[1]),
+                            weight: datum[2]
+                        })
                     }
                     heatmap.setOptions({data: heatmap_data_object});
                     console.log(heatmap_data)
