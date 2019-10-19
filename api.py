@@ -121,9 +121,6 @@ def get_route():
             ret_val = cursor.fetchall()
             # Add distance from query point to return
             for val in enumerate(ret_val):
-                val["lat"] = float(val['lat'])
-                val['lng'] = float(val['lng'])
-                val["wkt"] = wkt.loads(val["wkt"])
                 val["timestamp"] = datetime.datetime.strftime(val["timestamp"], '%Y-%m-%d %H:%M:%S')
             cursor.close()
             cnx.close()
@@ -151,7 +148,7 @@ def get_reports():
                 return json.dumps({'status': 'error', 'status_extended': 'Couldnt connect to sql database'})
 
             cursor = cnx.cursor(dictionary=True)
-            query = ("SELECT id, lat, lng, text, imgpath, score, userid, reporttype, timestamp "
+            query = ("SELECT id, lat, lng, text, imgpath, score, userid, reporttype, timestamp, title "
                      "FROM reports "
                      "WHERE (ABS(lat-%s) <= %s) AND (ABS(lng-%s) <= %s) "
                      "ORDER BY POWER(lat-%s, 2) + POWER(lng-%s, 2) ASC")
