@@ -131,7 +131,7 @@ def get_route():
 
 
 @api.route('/api/reports')
-def get_reports():
+ef get_reports():
     # x,y is center of screen
     args = request.args
     if len(args) != 3:
@@ -159,14 +159,14 @@ def get_reports():
             cursor.execute(query, [float(lat), float(r), float(lng), float(r), float(lat), float(lng)])
             ret_val = cursor.fetchall()
             # Add distance from query point to return
-            for index, row in enumerate(ret_val):
-                ret_val[index]["lat"] = float(ret_val[index]['lat'])
-                ret_val[index]['lng'] = float(ret_val[index]['lng'])
-                ret_val[index]['dst'] = geopy.distance.distance((row['lat'], row['lng']), (float(lat), float(lng))).km
+            for row in ret_val:
+                row["lat"] = float(row['lat'])
+                row['lng'] = float(row['lng'])
+                row["timestamp"] = datetime.datetime.strftime(row["timestamp"], '%Y-%m-%d %H:%M:%S')
+                row['dst'] = geopy.distance.distance((row['lat'],row['lng'] ), (float(lat), float(lng))).km
             cursor.close()
             cnx.close()
             return json.dumps({"status": 'success', 'status_extended': '', 'return': ret_val})
-
 
 @api.route('/api/messages')
 def get_messages():
