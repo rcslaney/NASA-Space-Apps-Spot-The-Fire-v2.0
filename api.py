@@ -148,8 +148,9 @@ def get_reports():
                 return json.dumps({'status': 'error', 'status_extended': 'Couldnt connect to sql database'})
 
             cursor = cnx.cursor(dictionary=True)
-            query = ("SELECT id, lat, lng, text, imgpath, score, userid, reporttype, timestamp, title "
+            query = ("SELECT reports.id as rid, lat, lng, text, imgpath, score, userid, reporttype, timestamp, title, users.firstname as firstname,users.lastname as lastname "
                      "FROM reports "
+                     "JOIN users on reports.userid=users.id "
                      "WHERE (ABS(lat-%s) <= %s) AND (ABS(lng-%s) <= %s) "
                      "ORDER BY POWER(lat-%s, 2) + POWER(lng-%s, 2) ASC")
             # Do the query
