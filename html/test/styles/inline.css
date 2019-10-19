@@ -185,17 +185,30 @@ body {
     max-width: 600px;
     border-radius: 8px;
     box-shadow: 5px 5px 5px 5px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    transition: height 0.5s;
+    display: flex;
+    flex-direction: column;
 }
 
-#bubble h3.title, #bubble h3.time {
+#bubble h3.title, #bubble h3.title2 {
     display: inline-block;
     margin: 13px;
 }
 
-#bubble h3.time {
+#bubble h3.title2 {
     float: right;
     font-weight: lighter;
     color: rgba(0, 0, 0, 0.6);
+}
+
+#buttons {
+    position: fixed;
+    width: fit-content;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
 }
 
 .big_button, .small_button {
@@ -205,53 +218,91 @@ body {
     color: white;
     position: absolute;
     outline: none;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    display: block;
 }
 
 .big_button {
-    width: 50px;
-    height: 50px;
-    border-radius: 25px;
-    line-height: 50px;
+    width: 70px;
+    height: 70px;
+    border-radius: 35px;
+    line-height: 70px;
     font-size: 24px;
     bottom: 10px;
-    left: 10px;
     z-index: 1000;
 }
 
 .button_group > div > button:nth-child(1) {
-    bottom: 80px;
+    bottom: 90px;
 }
 
 .button_group > div > button:nth-child(2) {
-    bottom: 120px;
+    bottom: 140px;
 }
 
 .button_group > div > button:nth-child(3) {
-    bottom: 160px;
+    bottom: 190px;
 }
 
-#buttons div:nth-child(2) {
-    right: 70px;
+.bl, .br {
+    width: 70px;
+    margin-bottom: 15px
 }
 
-#buttons div:nth-child(3) {
-    right: 140px;
+.bc {
+    width: 120px;
 }
 
 .small_button {
-    width: 30px;
-    height: 30px;
-    border-radius: 15px;
-    line-height: 30px;
-    left: 20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    line-height: 40px;
     transition: bottom 0.5s;
 }
 
+.bc > .big_button {
+    width: 100px;
+    height: 100px;
+    border-radius: 50px;
+    line-height: 100px;
+}
+
 .button_group {
-    position: fixed;
-    right: 0;
-    bottom: 0;
-    width: 70px;
-    height: 20px;
-    overflow: visible;
+    display: inline-block;
+    position: relative;
+}
+
+.message {
+    display: block;
+}
+
+.message > img {
+    width: 64px;
+    height: 64px;
+    border-radius: 32px;
+    display: inline-block;
+    float: left;
+}
+
+.message > h3 {
+    display: inline-block;
+    margin: 10px;
+}
+
+.message > p {
+    display: inline-block;
+    margin: 0 0 10px 10px;
+}
+
+.message > hr {
+    border: none;
+    border-bottom: 1px solid #BBB;
+}
+
+#scrollable_bubble {
+    padding: 10px;
+    overflow: scroll;
 }

@@ -11,8 +11,11 @@
 </head>
 <body>
 <div id="bubble">
-    <h3 class="title">NEWS</h3>
-    <h3 class="time">4:20pm</h3>
+    <div>
+        <h3 class="title" id="title">NEWS</h3>
+        <h3 class="title2" id="title2">4:20pm</h3>
+    </div>
+    <div id="scrollable_bubble"></div>
 </div>
 <main class="main">
     <div id="googleMap" style="width:100%;height:100%;"></div>
@@ -110,29 +113,29 @@
     </div>
 
     <div id="buttons">
-        <div class="button_group">
+        <div class="button_group bl">
+            <div>
+                <button class="small_button b1" style="bottom: 20px;" onclick="show_messages()">A</button>
+                <button class="small_button b2" style="bottom: 20px;">B</button>
+                <button class="small_button b3" style="bottom: 20px;">C</button>
+            </div>
             <button class="big_button" onclick="buttonClick(this)">+</button>
+        </div>
+        <div class="button_group bc">
             <div>
                 <button class="small_button b1" style="bottom: 20px;">A</button>
                 <button class="small_button b2" style="bottom: 20px;">B</button>
                 <button class="small_button b3" style="bottom: 20px;">C</button>
             </div>
-        </div>
-        <div class="button_group">
-            <button class="big_button">+</button>
-            <div>
-                <button class="small_button b1" style="bottom: 20px;">A</button>
-                <button class="small_button b2" style="bottom: 20px;">B</button>
-                <button class="small_button b3" style="bottom: 20px;">C</button>
-            </div>
-        </div>
-        <div class="button_group">
             <button class="big_button" onclick="buttonClick(this)">+</button>
+        </div>
+        <div class="button_group br">
             <div>
                 <button class="small_button b1" style="bottom: 20px;">A</button>
                 <button class="small_button b2" style="bottom: 20px;">B</button>
                 <button class="small_button b3" style="bottom: 20px;">C</button>
             </div>
+            <button class="big_button" onclick="buttonClick(this)">+</button>
         </div>
     </div>
 
@@ -140,7 +143,7 @@
         function buttonClick(e) {
             bg = e.parentElement;
             console.log(bg)
-            sbs = bg.children[1].children;
+            sbs = bg.children[0].children;
             if (sbs[0].style.bottom === "") {
                 for (key in sbs) {
                     sbs[key].style.bottom = "20px";
@@ -151,6 +154,40 @@
                 }
             }
         }
+
+        function openPopup(title, title2, html) {
+            document.getElementById("title").innerHTML = title;
+            document.getElementById("title2").innerHTML = title2;
+            document.getElementById("bubble").style.height = "calc(100vh - 40px)";
+            document.getElementById("scrollable_bubble").innerHTML = html;
+        }
+
+        function close_popup() {
+            openPopup("NEWS", "4:20pm", "")
+            document.getElementById("bubble").style.height = "";
+        }
+
+        function message_html(name, last_message, time, img_path) {
+            return "<span class='message'><img src='" + img_path + "'><h3>" + name + "</h3><h3 class='title2'>" + time + "</h3><br><p>" + last_message + "</p><br><hr></span>"
+        }
+
+        function show_messages() {
+            messages_html = "";
+            for (i = 0; i < 30; i++) {
+                messages_html += message_html("Jimmy Bob", "I live at 50 Colburn Close if...", "4:20pm", "images/testprofilepic.png")
+            }
+            openPopup("Direct messages", "Richard Slaney", messages_html)
+            history.pushState({"name": "messages", "data": messages_html}, null, "#messages")
+        }
+
+        history.replaceState({"name": "home"}, null, "#home")
+
+        window.onpopstate = function (event) {
+            console.log(event.state);
+            if(event.state["name"] === "home") {
+                close_popup()
+            }
+        };
     </script>
 
     <script src="scripts/luxon-1.11.4.js"></script>
