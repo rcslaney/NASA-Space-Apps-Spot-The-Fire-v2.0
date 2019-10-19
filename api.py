@@ -92,7 +92,7 @@ def get_zones():
 
 
 @api.route('/api/routes')
-def get_route():
+def get_routes():
     # x,y is center of screen
     args = request.args
     if len(args) != 3:
@@ -125,6 +125,42 @@ def get_route():
             cursor.close()
             cnx.close()
             return json.dumps({"status": 'success', 'status_extended': '', 'return': ret_val})
+
+@api.route('/api/send_route')
+def send_route():
+    # x,y is center of screen
+    args = request.args
+    real_args = ['polyline', 'reputation', 'title', 'description']
+    if len(args) != 3:
+        return json.dumps({'status': 'error', 'status_extended': f'This function takes {len(real_args)} arguments: {real_args}'})
+    else:
+        if set(args) != set(real_args):
+            return json.dumps({'status': 'error', 'status_extended': f'This function takes {len(real_args)} arguments: {real_args}'})
+        else:
+            polyline = args['polyline']
+            reputation = args['reputation']
+            title = args['title']
+            description = args['description']
+            # Connect to SQL Server
+            cnx = None
+            try:
+                cnx = connect()
+            except sql.Error as e:
+                return json.dumps({'status': 'error', 'status_extended': 'Couldnt connect to sql database'})
+
+            cursor = cnx.cursor(dictionary=True)
+            query = ("INSERT INTO routes (ST_LineFromEncodedPolyline(polyline),reputation,title,description)"
+                     "VALUES (%s, %s,%s,%s)")
+            # Do the query
+            cursor.execute(query, [polyline, reputation,title,description])
+            ret_val = cursor.fetchall()
+            # Add distance from query point to return
+            for val in enumerate(ret_val):
+                val["timestamp"] = datetime.datetime.strftime(val["timestamp"], '%Y-%m-%d %H:%M:%S')
+            cursor.close()
+            cnx.close()
+            return json.dumps({"status": 'success', 'status_extended': '', 'return': ret_val})
+
 
 
 @api.route('/api/reports')
