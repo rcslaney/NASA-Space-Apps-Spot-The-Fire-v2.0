@@ -122,12 +122,7 @@
             <button class="big_button" onclick="buttonClick(this)"><img src="images/icons/account-group.svg" style="width: 36px; height: 36px; margin-top: 12px;"></button>
         </div>
         <div class="button_group bc">
-            <div>
-                <button class="small_button b1" style="bottom: 20px;">A</button>
-                <button class="small_button b2" style="bottom: 20px;">B</button>
-                <button class="small_button b3" style="bottom: 20px;">C</button>
-            </div>
-            <button class="big_button" onclick="buttonClick(this)"><img src="images/icons/fire.svg" style="width: 64px; height: 64px; margin-top: 12px;"></button>
+            <button class="big_button" onclick="report()"><img src="images/icons/fire.svg" style="width: 64px; height: 64px; margin-top: 12px;"></button>
         </div>
         <div class="button_group br">
             <div>
@@ -178,6 +173,10 @@
             }
             openPopup("Direct messages", "Richard Slaney", messages_html)
             history.pushState({"name": "messages", "data": messages_html}, null, "#messages")
+        }
+
+        function report() {
+            openPopup("Send report", "Reporting", "<form><input type=\"file\" accept=\"image/*;capture=camera\"></form>")
         }
 
         history.replaceState({"name": "home"}, null, "#home")
