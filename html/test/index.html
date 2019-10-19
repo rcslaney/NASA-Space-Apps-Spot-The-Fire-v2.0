@@ -126,8 +126,9 @@
             </button>
         </div>
         <div class="button_group bc">
-            <button class="big_button" onclick='openPopupPage("Report fire", "Reporting", "pages/report.html")'><img src="images/icons/fire.svg"
-                                                               style="width: 64px; height: 64px; margin-top: 12px;">
+            <button class="big_button" onclick='openPopupPage("Report fire", "Reporting", "pages/report.html")'><img
+                    src="images/icons/fire.svg"
+                    style="width: 64px; height: 64px; margin-top: 12px;">
             </button>
         </div>
         <div class="button_group br">
@@ -236,6 +237,39 @@
             formData.append("lng", document.getElementById("lng").value);
             formData.append("reportdescription", document.getElementById("reportdescription").value);
             xhr.send(formData); // Simple!
+        }
+
+        function addMarkers() {
+            var xhttp = new XMLHttpRequest();
+
+            xhttp.onreadystatechange = function () {
+                if (this.readyState === 4 && this.status === 200) {
+                    console.log("Successfully loaded markers", xhttp.responseText);
+                    data = JSON.parse(xhttp.responseText);
+                    reports = data["return"];
+                    for (i = 0; i < reports.length; i++) {
+                        mdata = reports[i];
+                        var myLatLng = {lat: mdata["lat"], lng: mdata["lng"]};
+                        var marker = new google.maps.Marker({
+                            position: myLatLng,
+                            map: map,
+                            title: mdata["title"]
+                        });
+                        var infowindow = new google.maps.InfoWindow({
+                            content: "<img src='" + mdata["imgpath"] + "'><p>Location: " + mdata["lat"] + ", " + mdata["lng"] + "</p><p>Report type: " + mdata["reporttype"] + "</p><p>" + mdata["text"] + "</p>"
+                        });
+
+                        // Attach it to the marker we've just added
+                        google.maps.event.addListener(marker, 'click', function () {
+                            infowindow.open(map, marker);
+                        });
+                    }
+                }
+            };
+
+            xhttp.open("GET", "/api/reports?lat=0&lng=0&r=200");
+
+            xhttp.send()
         }
     </script>
 
