@@ -280,7 +280,7 @@ def get_help():
                 return json.dumps({'status': 'error', 'status_extended': 'Couldnt connect to sql database'})
 
             cursor = cnx.cursor(dictionary=True)
-            query = ("SELECT `help`.id as hid, lat, lng,  users.profilepicturepath as imgpath, userid, `timestamp`, title,description, CONCAT(users.firstname, " ", users.lastname) as `name` "
+            query = ("SELECT `help`.id as hid, lat, lng,  users.profilepicturepath as imgpath, userid, `timestamp`, title,description, CONCAT(users.firstname, " ", users.lastname) as fullname "
                      "FROM help "
                      "JOIN users on `help`.userid=users.id "
                      "WHERE (ABS(lat - %s) <= %s) AND (ABS(lng - %s) <= %s) "
