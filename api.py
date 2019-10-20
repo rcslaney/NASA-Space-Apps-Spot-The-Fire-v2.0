@@ -7,12 +7,16 @@ import json
 import mysql.connector as sql
 import geopy.distance
 from geomet import wkt
+import os
 
 api = Blueprint('account_api', __name__)
 
-
 def connect():
-    return sql.connect(user='root', password='BananaShoestring490',unix_socket="/cloudsql/nasa-256322:europe-west1:sql-nasa", database='app')
+    if os.environ['RUNNING_LOCALLY'] == "yes":
+        return sql.connect(user='root', password='BananaShoestring490', host="35.189.219.41", database='app')
+    else:
+        return sql.connect(user='root', password='BananaShoestring490',unix_socket="/cloudsql/nasa-256322:europe-west1:sql-nasa", database='app')
+
 
 
 @api.route('/api/poi')
