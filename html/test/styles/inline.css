@@ -367,3 +367,9 @@ input, textarea {
     user-select: none;
     pointer-events: none;
 }
+
+.link {
+    cursor: pointer;
+    text-decoration: underline;
+    color: #4444ee;
+}
