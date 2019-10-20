@@ -118,7 +118,7 @@ def send_zone():
     args = request.args
     real_args = ['geojson', 'type', 'description']
     if set(args) != set(real_args):
-        return json.dumps({'status': 'error', 'status_extended': f'This function takes {len(real_args)} arguments: {real_args}'})
+        return json.dumps({'status': 'error', 'status_extended': 'This function takes {} arguments: {}'}.format(len(real_args), real_args))
     else:
         data = None
         with open(args['geojson'], 'r') as json_file:
@@ -191,7 +191,7 @@ def send_route():
     args = request.args
     real_args = ['polyline', 'reputation', 'title', 'description']
     if set(args) != set(real_args):
-        return json.dumps({'status': 'error', 'status_extended': f'This function takes {len(real_args)} arguments: {real_args}'})
+        return json.dumps({'status': 'error', 'status_extended': 'This function takes {} arguments: {}'}.format(len(real_args), real_args))
     polyline = args['polyline']
     reputation = args['reputation']
     title = args['title']
@@ -343,7 +343,6 @@ def get_preview():
                     dict_insert['name'] = row["usertofirst"] + " " + row["usertolast"]
                     dict_insert["otheruserpic"] = row["usertopic"]
                 elif row["usertoid"] == int(userid):
-                    print("SECOND IF")
                     otheruser = row["userfromid"]
                     dict_insert['name'] = row['userfromfirst'] + " " + row['userfromlast']
                     dict_insert["otheruserpic"] = row["userfrompic"]
