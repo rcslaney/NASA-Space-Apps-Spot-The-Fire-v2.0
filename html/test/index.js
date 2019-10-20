@@ -349,3 +349,33 @@ function showHelp() {
 
     xhttp.send()
 }
+function showPoi() {
+
+
+    var xhttp = new XMLHttpRequest();
+
+    xhttp.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            console.log("Successfully loaded messages", xhttp.responseText);
+            data = JSON.parse(xhttp.responseText);
+            pois = data["return"];
+            // id, lat, lng, title, description, userid, dst
+            poi_html = ""
+            for (i in pois) {
+                hdata = pois[i];
+                console.log(hdata)
+                poi_html += "<span class='poi_box'><h3>" + hdata["title"] + "</h3><h4>" + hdata["description"] + "</h4><button type='button' onclick='panTo(" + hdata['lat'] + hdata['lng'] + ")'>Find</button><h3>" + hdata['dst'] + "</h3></span>"
+            }
+
+            openPopup("Help requests", "Richard Slaney", poi_html )
+            history.pushState({
+                "name": "messages",
+                "prevPage": {"title": "Poi requests", "title2": "Richard Slaney", "html": poi_html}
+            }, null, "#poirequests")
+        }
+    };
+
+    xhttp.open("GET", "/api/poi?lat=0&lng=0&r=200");
+
+    xhttp.send()
+}
