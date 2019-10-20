@@ -222,6 +222,8 @@ body {
     right: 0;
     margin: 0 auto;
     display: block;
+    cursor: pointer;
+    user-select: none;
 }
 
 .big_button {
@@ -277,6 +279,14 @@ body {
 
 .message {
     display: block;
+    border-bottom:  1px solid rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    cursor: pointer;
+    transition: background 0.5s;
+}
+
+.message:hover {
+    background: rgba(0, 0, 0, 0.05);
 }
 
 .message > img {
@@ -300,6 +310,20 @@ body {
 .message > hr {
     border: none;
     border-bottom: 1px solid #BBB;
+}
+
+.new_message {
+    font-size: 24px;
+    color: #AAA;
+    text-align: center;
+    display: block;
+    padding: 20px 0 30px 0;
+    cursor: pointer;
+    user-select: none;
+}
+
+#scrollable_bubble > .message:first-child {
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 input, textarea {
