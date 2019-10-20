@@ -120,7 +120,8 @@
                         src="images/icons/message.svg" style="width: 18px; height: 18px; margin-top: 10px;"></button>
                 <button class="small_button b2" style="bottom: 20px;"><img
                         src="images/icons/lifebuoy.svg" style="width: 18px; height: 18px; margin-top: 10px;"></button>
-                <button class="small_button b3" style="bottom: 20px;">C</button>
+                <button class="small_button b3" style="bottom: 20px;"><img
+                        src="images/icons/home-group.svg" style="width: 18px; height: 18px; margin-top: 10px;"></button>
             </div>
             <button class="big_button" onclick="buttonClick(this)"><img src="images/icons/account-group.svg"
                                                                         style="width: 36px; height: 36px; margin-top: 12px;">
@@ -134,13 +135,14 @@
         </div>
         <div class="button_group br">
             <div>
-                <button class="small_button b1" style="bottom: 20px;"><img
-                        src="images/icons/information.svg" style="width: 18px; height: 18px; margin-top: 10px;" onclick='openPopupPage("Contents", "Information", "pages/info-contents.html")'>
+                <button class="small_button b1" style="bottom: 20px;" onclick='openPopupPage("Contents", "Information", "pages/info-contents.html")'><img
+                        src="images/icons/information.svg" style="width: 18px; height: 18px; margin-top: 10px;">
                 </button>
                 <button class="small_button b2" style="bottom: 20px;"><img
                         src="images/icons/directions-fork.svg" style="width: 18px; height: 18px; margin-top: 10px;">
                 </button>
-                <button class="small_button b3" style="bottom: 20px;">C</button>
+                <button class="small_button b3" style="bottom: 20px;"><img
+                        src="images/icons/settings.svg" style="width: 18px; height: 18px; margin-top: 10px;"></button>
             </div>
             <button class="big_button" onclick="buttonClick(this)"><img src="images/icons/tools.svg"
                                                                         style="width: 36px; height: 36px; margin-top: 12px;">
@@ -148,166 +150,7 @@
         </div>
     </div>
 
-    <script>
-        function buttonClick(e) {
-            bg = e.parentElement;
-            console.log(bg)
-            sbs = bg.children[0].children;
-            if (sbs[0].style.bottom === "") {
-                for (key in sbs) {
-                    sbs[key].style.bottom = "20px";
-                }
-            } else {
-                for (key in sbs) {
-                    sbs[key].style.bottom = "";
-                }
-            }
-        }
-
-        function openPopup(title, title2, html) {
-            document.getElementById("title").innerHTML = title;
-            document.getElementById("title2").innerHTML = title2;
-            document.getElementById("bubble").style.height = "calc(100vh - 40px)";
-            document.getElementById("scrollable_bubble").innerHTML = html;
-        }
-
-        function close_popup() {
-            openPopup("NEWS", "4:20pm", "")
-            document.getElementById("bubble").style.height = "";
-        }
-
-        function message_html(name, last_message, time, img_path) {
-            return "<span class='message'><img src='" + img_path + "'><h3>" + name + "</h3><h3 class='title2'>" + time + "</h3><br><p>" + last_message + "</p><br><hr></span>"
-        }
-
-        function report() {
-            openPopup("Send report", "Reporting", "<form><input id=\"fireimage\" name=\"fireimage\" type=\"file\" accept=\"image/*;capture=camera\" style='opacity: 0; position: absolute; width: 0.1px'><label for='fireimage' id='uploadfile'>Upload image</label><span id='fireimagetext'></span></form>")
-            document.getElementById("fireimage").addEventListener("change", function (e) {
-                document.getElementById("fireimagetext").innerHTML = "File: " + e.target.files[0]["name"];
-            })
-        }
-
-        function openPopupPage(title, title2, pagepath) {
-            var xhttp = new XMLHttpRequest();
-            xhttp.onreadystatechange = function () {
-                if (this.readyState === 4 && this.status === 200) {
-                    // Typical action to be performed when the document is ready:
-                    history.pushState({"name": "title", "data": xhttp.responseText}, null, "#" + title)
-                    openPopup(title, title2, xhttp.responseText);
-                }
-            };
-            xhttp.open("GET", pagepath, true);
-            xhttp.send();
-        }
-
-        history.replaceState({"name": "home"}, null, "#home")
-
-        window.onpopstate = function (event) {
-            console.log(event.state);
-            if (event.state["name"] === "home") {
-                close_popup()
-            }
-        };
-
-        function populateFormPositionGPS(position) {
-            console.log(position)
-            document.getElementById("lat").value = position.coords.latitude;
-            document.getElementById("lng").value = position.coords.longitude;
-        }
-
-        function populateFormPositionMap() {
-            position = map.getCenter();
-            document.getElementById("lat").value = position.lat();
-            document.getElementById("lng").value = position.lng();
-        }
-
-        function submitReport() {
-            var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = function () {
-                if (this.readyState === 4 && this.status === 200) {
-                    openPopup("Report uploaded!", "Reporting", "<p>Your report has been uploaded, thank you for your help.</p>");
-                }
-            };
-            xhr.open('POST', '/uploadreport', true);
-            var formData = new FormData();
-            formData.append("file", document.getElementById("fireimage").files[0]);
-            formData.append("lat", document.getElementById("lat").value);
-            formData.append("lng", document.getElementById("lng").value);
-            formData.append("reportdescription", document.getElementById("reportdescription").value);
-            xhr.send(formData); // Simple!
-        }
-
-        function infoCallback(infowindow, marker) {
-            return function () {
-                infowindow.open(map, marker);
-            };
-        }
-
-        function addMarkers() {
-            var xhttp = new XMLHttpRequest();
-
-            xhttp.onreadystatechange = function () {
-                if (this.readyState === 4 && this.status === 200) {
-                    console.log("Successfully loaded markers", xhttp.responseText);
-                    data = JSON.parse(xhttp.responseText);
-                    reports = data["return"];
-                    for (i = 0; i < reports.length; i++) {
-                        mdata = reports[i];
-
-                        // First marker
-                        var marker = new google.maps.Marker({
-                            position: new google.maps.LatLng(mdata["lat"], mdata["lng"]),
-                            map: map,
-                            title: mdata["title"]
-                        });
-
-                        // First infowindow
-                        var infowindow = new google.maps.InfoWindow({
-                            content: "<img src='/" + mdata["imgpath"] + "'><p>Location: " + mdata["lat"] + ", " + mdata["lng"] + "</p><p>Report type: " + mdata["reporttype"] + "</p><p>" + mdata["text"] + "</p>"
-                        });
-
-                        // Attach it to the marker we've just added
-                        google.maps.event.addListener(marker, 'click', infoCallback(infowindow, marker));
-                    }
-                }
-            };
-
-            xhttp.open("GET", "/api/previews?lat=0&lng=0&r=200");
-
-            xhttp.send()
-        }
-
-        function showMessages() {
-            var xhttp = new XMLHttpRequest();
-
-            xhttp.onreadystatechange = function () {
-                if (this.readyState === 4 && this.status === 200) {
-                    console.log("Successfully loaded messages", xhttp.responseText);
-                    data = JSON.parse(xhttp.responseText);
-                    conversations = data["return"];
-                    messages_html = "";
-                    for (i in conversations) {
-                        cdata = conversations[i];
-                        console.log(cdata)
-                        messages_html += message_html(cdata["name"], cdata["message"], cdata["timestamp"].split(" ")[1], cdata["otheruserpic"])
-                    }
-
-                    openPopup("Direct messages", "Richard Slaney", messages_html)
-                    history.pushState({"name": "messages", "data": messages_html}, null, "#messages")
-                }
-            };
-
-            xhttp.open("GET", "/api/preview?userid=1");
-
-            xhttp.send()
-        }
-
-        function sendMessageDialogue() {
-
-        }
-
-    </script>
-
+    <script src="index.js"></script>
     <script src="scripts/luxon-1.11.4.js"></script>
     <script src="scripts/app.js"></script>
 </body>
