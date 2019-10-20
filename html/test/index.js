@@ -389,3 +389,64 @@ function getID() {
         return 0
     }
 }
+function showPoi() {
+
+
+    var xhttp = new XMLHttpRequest();
+
+    xhttp.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            console.log("Successfully loaded messages", xhttp.responseText);
+            data = JSON.parse(xhttp.responseText);
+            pois = data["return"];
+            // id, lat, lng, title, description, userid, dst
+            poi_html = ""
+            for (i in pois) {
+                hdata = pois[i];
+                console.log(hdata)
+                poi_html += "<span class='poi_box'><h3>" + hdata["title"] + "</h3><h4>" + hdata["description"] + "</h4><button type='button' onclick='google.maps.panTo(new google.maps.LatLng(" + hdata['lat'] + "," + hdata['lng'] + ")'>Find</button><h3>" + hdata['dst'] + "</h3></span>"
+            }
+
+            openPopup("Help requests", "Richard Slaney", poi_html )
+            history.pushState({
+                "name": "messages",
+                "prevPage": {"title": "Poi requests", "title2": "Richard Slaney", "html": poi_html}
+            }, null, "#poirequests")
+        }
+    };
+
+    xhttp.open("GET", "/api/poi?lat=0&lng=0&r=200");
+
+    xhttp.send()
+}
+function showRoutes() {
+
+    var xhttp = new XMLHttpRequest();
+
+    xhttp.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            console.log("Successfully loaded messages", xhttp.responseText);
+            data = JSON.parse(xhttp.responseText);
+            routes = data["return"];
+            // line, reputation, title, description, timestamp
+            for (i in routes) {
+                hdata = routes[i];
+                console.log(hdata);
+                map = document.getElementById("googleMap")
+                poly = new google.maps.Polyline({
+                    strokeColor: '#FF0000',
+                    strokeOpacity: 1.0,
+                    strokeWeight: 2.5 + (reputation/100),
+                    map: map,
+                    path: google.maps.geometry.encoding.decodePath(hdata["line"])
+                  });
+            }
+
+            openPopup("Help requests", "Richard Slaney", route_html )
+            history.pushState({
+                "name": "messages",
+                "prevPage": {"title": "Route requests", "title2": "Richard Slaney", "html": route_html}
+            }, null, "#routerequests")
+        }
+    };
+}

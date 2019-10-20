@@ -50,7 +50,7 @@
         map = new google.maps.Map(document.getElementById('googleMap'), {
             center: sanFrancisco,
             zoom: 13,
-            mapTypeId: 'satellite',
+            mapTypeId: 'roadmap',
             zoomControl: false,
             mapTypeControl: false,
             streetViewControl: false,
@@ -121,7 +121,7 @@
                         src="images/icons/message.svg" style="width: 18px; height: 18px; margin-top: 10px;"></button>
                 <button class="small_button b2" style="bottom: 20px;" onclick="showHelp()"><img
                         src="images/icons/lifebuoy.svg" style="width: 18px; height: 18px; margin-top: 10px;"></button>
-                <button class="small_button b3" style="bottom: 20px;"><img
+                <button class="small_button b3" style="bottom: 20px;" onclick=showPoi()><img
                         src="images/icons/home-group.svg" style="width: 18px; height: 18px; margin-top: 10px;"></button>
             </div>
             <button class="big_button" onclick="buttonClick(this)"><img src="images/icons/account-group.svg"
