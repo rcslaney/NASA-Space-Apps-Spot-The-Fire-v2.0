@@ -89,6 +89,43 @@ def get_zones():
             cursor.close()
             cnx.close()
             return json.dumps({"status": 'success', 'status_extended': '', 'return': ret_val})
+@api.route('/api/send_zone')
+def send_zone():
+    # x,y is center of screen
+    args = request.args
+    if len(args) != 3:
+        return json.dumps({'status': 'error', 'status_extended': 'This function takes 3 arguments: lat and lng and r'})
+    else:
+        if 'lat' not in args.keys() or ('lng' not in args.keys()) or ('r' not in args.keys()):
+            return json.dumps({'status': 'error', 'status_extended': 'This function takes 3 arguments: lat and lng and r'})
+        else:
+            lat = float(args['lat'])
+            lng = float(args['lng'])
+            r = float(args['r'])
+            # Connect to SQL Server
+            cnx = None
+            try:
+                cnx = connect()
+            except sql.Error as e:
+                return json.dumps({'status': 'error', 'status_extended': 'Couldnt connect to sql database'})
+
+            cursor = cnx.cursor(dictionary=True)
+            query = ("SELECT ST_AsText(zonepoly) as wkt, type, description, timestamp "
+                     "FROM zones "
+                     "WHERE (ABS(X(Centroid(zonepoly)) - %s) <= %s) AND (ABS(Y(Centroid(zonepoly)) - %s ) <= %s) "
+                     "ORDER BY timestamp DESC")
+            # Do the query
+            cursor.execute(query, [float(lat), float(r), float(lng), float(r)])
+            ret_val = cursor.fetchall()
+            # Add distance from query point to return
+            for val in enumerate(ret_val):
+                val["lat"] = float(val['lat'])
+                val['lng'] = float(val['lng'])
+                val["wkt"] = wkt.loads(val["wkt"])
+                val["timestamp"] = datetime.datetime.strftime(val["timestamp"], '%Y-%m-%d %H:%M:%S')
+            cursor.close()
+            cnx.close()
+            return json.dumps({"status": 'success', 'status_extended': '', 'return': ret_val})
 
 
 @api.route('/api/routes')
@@ -263,7 +300,7 @@ def get_preview():
             cursor = cnx.cursor(dictionary=True)
 
             query = ("SELECT messages.id as mid,userfromid,u1.firstname as userfromfirst, u1.lastname as userfromlast,usertoid, u2.firstname as usertofirst, "
-                     "u2.lastname as usertolast, u1.profilepicture path as userfrompic, u2.profilepicturepath as usertopic,message, timestamp "
+                     "u2.lastname as usertolast, u1.profilepicturepath as userfrompic, u2.profilepicturepath as usertopic,message, timestamp "
                      "FROM messages "
                      "JOIN users as u1 ON userfromid=u1.id "
                      "JOIN users as u2 ON usertoid=u2.id "
@@ -274,7 +311,7 @@ def get_preview():
             # Add distance from query point to return
             latest = {}
             print(repr(ret_val))
-            for index, row in enumerate(ret_val):
+            for row in ret_val:
                 dict_insert = {'id': row["mid"], 'message': row["message"], 'timestamp': row["timestamp"]}
                 otheruser = None
                 if row["userfromid"] == int(userid):
