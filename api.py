@@ -284,7 +284,7 @@ def get_help():
                      "FROM `help` "
                      "JOIN users on `help`.userid=users.id "
                      "WHERE (ABS(lat - %s) <= %s) AND (ABS(lng - %s) <= %s) "
-                     "ORDER BY POWER(lat-%s, 2) + POWER(lng-%s, 2) ASC")
+                     "ORDER BY POWER(lat - %s, 2) + POWER(lng - %s, 2) ASC")
             # Do the query
             cursor.execute(query, [float(lat), float(r), float(lng), float(r), float(lat), float(lng)])
             ret_val = cursor.fetchall()
