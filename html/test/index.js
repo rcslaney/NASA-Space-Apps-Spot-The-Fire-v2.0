@@ -36,7 +36,8 @@ function report() {
     })
 }
 
-function openPopupPage(title, title2, pagepath, callback = function() {}) {
+function openPopupPage(title, title2, pagepath, callback = function () {
+}) {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
@@ -151,7 +152,10 @@ function showMessages() {
             }
 
             openPopup("Direct messages", "Richard Slaney", messages_html)
-            history.pushState({"name": "messages", "prevPage": {"title": "Direct messages", "title2": "Richard Slaney", "html": messages_html}}, null, "#messages")
+            history.pushState({
+                "name": "messages",
+                "prevPage": {"title": "Direct messages", "title2": "Richard Slaney", "html": messages_html}
+            }, null, "#messages")
         }
     };
 
@@ -174,7 +178,10 @@ function sendMessageDialogue() {
                 select_html += "<option value='" + user["id"] + "'>" + user["name"] + "</option>";
             }
 
-            openPopupPage("Send a message", "Messaging", "pages/send_message.html", function() { console.log("Trying to put this in", select_html); document.getElementById("recepient").innerHTML = select_html; })
+            openPopupPage("Send a message", "Messaging", "pages/send_message.html", function () {
+                console.log("Trying to put this in", select_html);
+                document.getElementById("recepient").innerHTML = select_html;
+            })
         }
     };
 
@@ -187,7 +194,7 @@ function sendMessage() {
     var xhttp = new XMLHttpRequest();
 
     xhttp.onreadystatechange = function () {
-         if (this.readyState === 4 && this.status === 200) {
+        if (this.readyState === 4 && this.status === 200) {
             showMessages()
         }
     };
@@ -208,18 +215,66 @@ function viewConversation(userid) {
             messages_html = "";
             for (i in messages) {
                 message = messages[i];
-                if(message["usertoid"] == userid) {
+                if (message["usertoid"] == userid) {
                     messages_html += "<span class='message_bubble_outer'><span class='message_bubble'>" + message["message"] + "</span></span>";
                 } else {
                     messages_html += "<span class='message_bubble_outer'><span class='message_bubble reply'>" + message["message"] + "</span></span>";
                 }
             }
-            history.pushState({"prevPage": {"title": "Conversation", "title2": "", "html": messages_html}}, null, "#conversation" + userid);
+            history.pushState({
+                "prevPage": {
+                    "title": "Conversation",
+                    "title2": "",
+                    "html": messages_html
+                }
+            }, null, "#conversation" + userid);
             openPopup("Conversation", "", messages_html)
         }
     };
 
     xhttp.open("GET", "/api/messages?userid=1&userid2=" + userid);
+
+    xhttp.send()
+}
+
+function addAreas() {
+    var xhttp = new XMLHttpRequest();
+
+    xhttp.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            console.log("Successfully loaded messages", xhttp.responseText);
+            data = JSON.parse(xhttp.responseText);
+            zones = data["return"];
+            for (i in zones) {
+                zone = zones[i];
+                console.log(zone.wkt.coordinates[0][0])
+                coords = zone.wkt.coordinates[0][0]
+
+                gcoords = [];
+
+                for(i in coords) {
+                    gcoords[i] = {lat: coords[i][0], lng: coords[i][1]}
+                }
+
+                console.log(gcoords)
+
+                // Construct the polygon.
+                var poly = new google.maps.Polygon({
+                    paths: gcoords,
+                    strokeColor: '#FF0000',
+                    strokeOpacity: 0.8,
+                    strokeWeight: 2,
+                    fillColor: '#FF0000',
+                    fillOpacity: 0.35
+                });
+                poly.setMap(map)
+            }
+            // history.pushState({"prevPage": {"title": "Conversation", "title2": "", "html": messages_html}}, null, "#conversation" + userid);
+            // openPopup("Conversation", "", messages_html)
+        }
+    };
+
+    xhttp.open("GET", "/api/zones?lat=0&lng=0&r=200");
 
     xhttp.send()
 }
