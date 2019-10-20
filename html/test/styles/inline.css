@@ -460,3 +460,45 @@ textarea {
     border-radius: 5px;
     cursor: pointer;
 }
+
+.help_box > img {
+    height: 64px;
+    width: 64px;
+    border-radius: 32px;
+    float: left;
+}
+
+.help_box > h3 {
+    margin: 20px 0px 20px 80px;
+}
+
+.help_box > h4 {
+    font-weight: lighter;
+    margin: 20px 0px 20px 80px;
+}
+
+.help_box {
+    display: block;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.help_box:first-child {
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.sendmessage > button {
+    outline: none;
+    border: none;
+    padding: 10px;
+    width: 100%;
+    border-radius: 5px;
+}
+
+.sendmessage > select {
+    width: 100%;
+    padding: 10px;
+    outline: none;
+    border: none;
+    background: white;
+    border-radius: 5px;
+}

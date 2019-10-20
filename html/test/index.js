@@ -322,3 +322,30 @@ function addAreas() {
 
     xhttp.send()
 }
+
+function showHelp() {
+    var xhttp = new XMLHttpRequest();
+
+    xhttp.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            console.log("Successfully loaded messages", xhttp.responseText);
+            data = JSON.parse(xhttp.responseText);
+            helps = data["return"];
+            help_html = "<span class='new_message' onclick='sendMessageDialogue()'>Request help</span>";
+            for (i in helps) {
+                hdata = helps[i];
+                help_html += "<span class='help_box'><img src='" + hdata["imgpath"] + "'><h3>" + hdata["title"] + "</h3><h4>" + hdata["fullname"] + "</h4></span>"
+            }
+
+            openPopup("Help requests", "Richard Slaney", help_html)
+            history.pushState({
+                "name": "messages",
+                "prevPage": {"title": "Help requests", "title2": "Richard Slaney", "html": help_html}
+            }, null, "#helprequests")
+        }
+    };
+
+    xhttp.open("GET", "/api/help?lat=0&lng=0&r=200");
+
+    xhttp.send()
+}
