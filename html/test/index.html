@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>Fyre</title>
     <link rel="stylesheet" type="text/css" href="styles/inline.css">
-    <link rel="icon" href="images/favicon.ico" type="image/x-icon"/>
     <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="/html/test/images/logo.png">
 </head>
 <body>
 <div id="bubble">
@@ -58,8 +58,7 @@
         });
 
         heatmap = new google.maps.visualization.HeatmapLayer({
-            data: heatMapData,
-            dissipating: false
+            data: heatMapData
         });
         heatmap.setMap(map);
 
@@ -147,7 +146,7 @@
                         src="images/icons/settings.svg" style="width: 18px; height: 18px; margin-top: 10px;"></button>
             </div>
             <button class="big_button" onclick="buttonClick(this)"><img src="images/icons/tools.svg"
-                                                                        style="width: 36px; height: 36px; margin-top: 12px;">
+                                                                        style="width: 36px; height: 36px; margin-top: 16px;">
             </button>
         </div>
     </div>
@@ -159,6 +158,10 @@
     addAreas();
     addPOIMarkers();
     addReportMarkers();
+    function pos(position) {
+        map.panTo({lat: position.coords.latitude, lng: position.coords.longitude})
+    }
+    navigator.geolocation.getCurrentPosition(pos)
 </script>
 </body>
 </html>
