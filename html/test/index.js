@@ -25,8 +25,8 @@ function close_popup() {
     document.getElementById("bubble").style.height = "";
 }
 
-function message_html(name, last_message, time, img_path) {
-    return "<span class='message'><img src='" + img_path + "'><h3>" + name + "</h3><h3 class='title2'>" + time + "</h3><br><p>" + last_message + "</p><br></span>"
+function message_html(id, name, last_message, time, img_path) {
+    return "<span class='message' onclick='viewConversation(" + id + ")'><img src='" + img_path + "'><h3>" + name + "</h3><h3 class='title2'>" + time + "</h3><br><p>" + last_message + "</p><br></span>"
 }
 
 function report() {
@@ -36,7 +36,7 @@ function report() {
     })
 }
 
-function openPopupPage(title, title2, pagepath) {
+function openPopupPage(title, title2, pagepath, callback = function() {}) {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
@@ -48,6 +48,7 @@ function openPopupPage(title, title2, pagepath) {
             }, null, "#" + title)
 
             openPopup(title, title2, xhttp.responseText);
+            callback()
         }
     };
     xhttp.open("GET", pagepath, true);
@@ -146,11 +147,11 @@ function showMessages() {
             for (i in conversations) {
                 cdata = conversations[i];
                 console.log(cdata)
-                messages_html += message_html(cdata["name"], cdata["message"], cdata["timestamp"].split(" ")[1], cdata["otheruserpic"])
+                messages_html += message_html(i, cdata["name"], cdata["message"], cdata["timestamp"].split(" ")[1], cdata["otheruserpic"])
             }
 
             openPopup("Direct messages", "Richard Slaney", messages_html)
-            history.pushState({"name": "messages", "data": messages_html}, null, "#messages")
+            history.pushState({"name": "messages", "prevPage": {"title": "Direct messages", "title2": "Richard Slaney", "html": messages_html}}, null, "#messages")
         }
     };
 
@@ -173,8 +174,7 @@ function sendMessageDialogue() {
                 select_html += "<option value='" + user["id"] + "'>" + user["name"] + "</option>";
             }
 
-            openPopupPage("Send a message", "Messaging", "pages/send_message.html")
-            document.getElementById("recepient").innerHTML = select_html;
+            openPopupPage("Send a message", "Messaging", "pages/send_message.html", function() { console.log("Trying to put this in", select_html); document.getElementById("recepient").innerHTML = select_html; })
         }
     };
 
@@ -193,6 +193,33 @@ function sendMessage() {
     };
 
     xhttp.open("GET", "/api/send_message?userfromid=1&usertoid=" + document.getElementById("recepient").value + "&message=" + document.getElementById("message").value);
+
+    xhttp.send()
+}
+
+function viewConversation(userid) {
+    var xhttp = new XMLHttpRequest();
+
+    xhttp.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            console.log("Successfully loaded messages", xhttp.responseText);
+            data = JSON.parse(xhttp.responseText);
+            messages = data["return"];
+            messages_html = "";
+            for (i in messages) {
+                message = messages[i];
+                if(message["usertoid"] == userid) {
+                    messages_html += "<span class='message_bubble_outer'><span class='message_bubble'>" + message["message"] + "</span></span>";
+                } else {
+                    messages_html += "<span class='message_bubble_outer'><span class='message_bubble reply'>" + message["message"] + "</span></span>";
+                }
+            }
+            history.pushState({"prevPage": {"title": "Conversation", "title2": "", "html": messages_html}}, null, "#conversation" + userid);
+            openPopup("Conversation", "", messages_html)
+        }
+    };
+
+    xhttp.open("GET", "/api/messages?userid=1&userid2=" + userid);
 
     xhttp.send()
 }

@@ -355,7 +355,7 @@ input, textarea {
     text-overflow: ellipsis;
 }
 
-#reportform > textarea {
+textarea {
     padding: 10px;
     width: 100%;
     height: 100px;
@@ -396,4 +396,33 @@ input, textarea {
     cursor: pointer;
     text-decoration: underline;
     color: #4444ee;
+}
+
+.message_bubble_outer {
+    display: block;
+}
+
+.message_bubble_outer:before,
+.message_bubble_outer:after {
+  content: " "; /* 1 */
+  display: table; /* 2 */
+}
+
+.message_bubble_outer:after {
+  clear: both;
+}
+
+.message_bubble {
+    color: white;
+    background: #2e3750;
+    border-radius: 5px;
+    padding: 10px;
+    display: block;
+    float: left;
+    margin: 10px;
+}
+
+.reply {
+    background: #999;
+    float: right;
 }
