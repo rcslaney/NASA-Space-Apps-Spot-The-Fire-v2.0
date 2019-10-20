@@ -29,6 +29,9 @@ function close_popup() {
     document.getElementById("dimmed").style.pointerEvents = "none";
     document.getElementById("dimmed").style.background = "rgba(0, 0, 0, 0)";
     document.getElementById("dimmed").style.cursor = "";
+    addAreas();
+    addPOIMarkers();
+    addReportMarkers();
 }
 
 function message_html(id, name, last_message, time, img_path) {
