@@ -118,7 +118,7 @@ def send_zone():
     args = request.args
     real_args = ['geojson', 'type', 'description']
     if set(args) != set(real_args):
-        return json.dumps({'status': 'error', 'status_extended': f'This function takes {len(real_args)} arguments: {real_args}'})
+        return json.dumps({'status': 'error', 'status_extended': 'This function takes {len(real_args)} arguments: {real_args}'})
     else:
         data = None
         with open(args['geojson'], 'r') as json_file:
