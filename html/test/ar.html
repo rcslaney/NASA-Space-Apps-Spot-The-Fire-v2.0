@@ -1,0 +1,19 @@
+<!doctype HTML>
+<html>
+<script src="https://aframe.io/releases/0.6.1/aframe.min.js"></script>
+<script src="https://cdn.rawgit.com/jeromeetienne/AR.js/1.5.0/aframe/build/aframe-ar.js"> </script>
+  <body style='margin : 0px; overflow: hidden;'>
+    <a-scene
+    cursor='rayOrigin: mouse; fuse: true; fuseTimeout: 0;'
+    raycaster="objects: [gps-entity-place];"
+    vr-mode-ui="enabled: false"
+    embedded
+    arjs='sourceType: webcam; debugUIEnabled: false;'>
+
+    <a-box color="red" gps-entity-place="latitude: 51.500151; longitude: -0.126241"/>
+    <a-box color="red" gps-entity-place="latitude: 51.500149; longitude: -0.126239"/>
+    <a-camera gps-camera rotation-reader></a-camera>
+    </a-scene>
+  </body>
+</html>
+
