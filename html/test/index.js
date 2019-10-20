@@ -95,6 +95,7 @@ function submitReport() {
     };
     xhr.open('POST', '/uploadreport', true);
     var formData = new FormData();
+    formData.append("id", getID())
     formData.append("file", document.getElementById("fireimage").files[0]);
     formData.append("lat", document.getElementById("lat").value);
     formData.append("lng", document.getElementById("lng").value);
@@ -200,7 +201,7 @@ function showMessages() {
         }
     };
 
-    xhttp.open("GET", "/api/preview?userid=1");
+    xhttp.open("GET", "/api/preview?userid=" + getID());
 
     xhttp.send()
 }
@@ -240,7 +241,7 @@ function sendMessage() {
         }
     };
 
-    xhttp.open("GET", "/api/send_message?userfromid=1&usertoid=" + document.getElementById("recepient").value + "&message=" + document.getElementById("message").value);
+    xhttp.open("GET", "/api/send_message?userfromid=" + getID() + "&usertoid=" + document.getElementById("recepient").value + "&message=" + document.getElementById("message").value);
 
     xhttp.send()
 }
@@ -276,7 +277,7 @@ function viewConversation(userid) {
         }
     };
 
-    xhttp.open("GET", "/api/messages?userid=1&userid2=" + userid);
+    xhttp.open("GET", "/api/messages?userid=" + getID() + "&userid2=" + userid);
 
     xhttp.send()
 }
@@ -389,9 +390,8 @@ function getID() {
         return 0
     }
 }
+
 function showPoi() {
-
-
     var xhttp = new XMLHttpRequest();
 
     xhttp.onreadystatechange = function () {
@@ -419,6 +419,7 @@ function showPoi() {
 
     xhttp.send()
 }
+
 function showRoutes() {
 
     var xhttp = new XMLHttpRequest();
