@@ -11,7 +11,7 @@ from api import connect
 import mysql.connector as sql
 
 
-UPLOAD_FOLDER = 'uploads/'
+UPLOAD_FOLDER = '/tmp/'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
 # set the project root directory as the static folder, you can set others.
@@ -28,7 +28,7 @@ def send_html(path):
 
 @app.route('/uploads/<path:path>')
 def send_upload(path):
-    return send_from_directory('uploads', path)
+    return send_from_directory(UPLOAD_FOLDER, path)
 
 
 @app.route("/api/fire_data")
