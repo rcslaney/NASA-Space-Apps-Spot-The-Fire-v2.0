@@ -259,7 +259,6 @@ def get_reports():
             cnx.close()
             return json.dumps({"status": 'success', 'status_extended': '', 'return': ret_val})
 
-
 @api.route('/api/help')
 def get_help():
     # x,y is center of screen
@@ -281,11 +280,11 @@ def get_help():
                 return json.dumps({'status': 'error', 'status_extended': 'Couldnt connect to sql database'})
 
             cursor = cnx.cursor(dictionary=True)
-            query = ("SELECT help.id as hid, lat, lng, text, users.profilepicturepath as imgpath, userid, timestamp, title,description, CONCAT(users.firstname, " ", users.lastname) as name "
-                     "FROM reports "
-                     "JOIN users on reports.userid=users.id "
-                     "WHERE (ABS(lat-%s) <= %s) AND (ABS(lng-%s) <= %s) "
-                     "ORDER BY POWER(lat-%s, 2) + POWER(lng-%s, 2) ASC")
+            query = ("SELECT helps.id as hid, lat, lng,  users.profilepicturepath as imgpath, userid, `timestamp`,  CONCAT(users.firstname, ' ', users.lastname) as fullname, title,description "
+                     "FROM helps "
+                     "JOIN users on helps.userid=users.id "
+                     "WHERE (ABS(lat - %s) <= %s) AND (ABS(lng - %s) <= %s) "
+                     "ORDER BY POWER(lat - %s, 2) + POWER(lng - %s, 2) ASC")
             # Do the query
             cursor.execute(query, [float(lat), float(r), float(lng), float(r), float(lat), float(lng)])
             ret_val = cursor.fetchall()
