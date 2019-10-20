@@ -1,5 +1,5 @@
 import datetime
-
+from polyline.codec import PolylineCodec
 from flask import Flask, request, send_from_directory, Blueprint
 import requests
 import csv
@@ -43,14 +43,38 @@ def get_poi():
             # Do the query
             cursor.execute(query, [lat, r, lng, r, lat, lng])
             ret_val = cursor.fetchall()
-            for index, row in enumerate(ret_val):
-                ret_val[index]["lat"] = float(ret_val[index]['lng'])
-                ret_val[index]['lng'] = float(ret_val[index]['lng'])
-                ret_val[index]['dst'] = geopy.distance.distance((row['lat'], row['lng']), (lat, lng)).km
+            for row in ret_val:
+                row["lat"] = float(row['lng'])
+                row['lng'] = float(row['lng'])
+                row['dst'] = geopy.distance.distance((row['lat'], row['lng']), (lat, lng)).km
             cursor.close()
             cnx.close()
             return json.dumps({"status": 'success', 'status_extended': '', 'return': ret_val})
 
+@api.route('/api/users')
+def get_users():
+    # Connect to SQL Server
+    cnx = None
+    try:
+        cnx = connect()
+    except sql.Error as e:
+        print(e)
+        return json.dumps({'status': 'error', 'status_extended': 'Couldnt connect to sql database'})
+
+    cursor = cnx.cursor(dictionary=True)
+    query = ("SELECT id, Concat(firstname, ' ', lastname) as name, profilepicturepath, email, homelat, homelng, reputationscore "
+                "FROM users "
+                "ORDER BY name DESC")
+    # Do the query
+    cursor.execute(query)
+    ret_val = cursor.fetchall()
+    # Add distance from query point to return
+    for row in ret_val:
+        row["homelat"] = float(row['homelat'])
+        row['homelng'] = float(row['homelng'])
+    cursor.close()
+    cnx.close()
+    return json.dumps({"status": 'success', 'status_extended': '', 'return': ret_val})
 
 @api.route('/api/zones')
 def get_zones():
@@ -81,14 +105,13 @@ def get_zones():
             cursor.execute(query, [float(lat), float(r), float(lng), float(r)])
             ret_val = cursor.fetchall()
             # Add distance from query point to return
-            for val in enumerate(ret_val):
-                val["lat"] = float(val['lat'])
-                val['lng'] = float(val['lng'])
+            for val in ret_val:
                 val["wkt"] = wkt.loads(val["wkt"])
                 val["timestamp"] = datetime.datetime.strftime(val["timestamp"], '%Y-%m-%d %H:%M:%S')
             cursor.close()
             cnx.close()
             return json.dumps({"status": 'success', 'status_extended': '', 'return': ret_val})
+
 @api.route('/api/send_zone')
 def send_zone():
     # x,y is center of screen
@@ -146,15 +169,17 @@ def get_routes():
                 return json.dumps({'status': 'error', 'status_extended': 'Couldnt connect to sql database'})
 
             cursor = cnx.cursor(dictionary=True)
-            query = ("SELECT ST_AsEncodedPolyline(polyline) as line, reputation, title, description, timestamp "
+
+            query = ("SELECT ST_AsText(polyline) as line, reputation, title, description, timestamp "
                      "FROM routes "
-                     "WHERE ABS(X(polyline.ST_PointN(ST.NumPoints()/2)) - %s) <= %s AND ABS(Y(polyline.ST_PointN(ST.NumPoints()/2)) - %s) <= %s"
+                     "WHERE ABS(X(ST_PointN(polyline, ST_NumPoints(polyline)/2)) - %s) <= %s AND ABS(Y(ST_PointN(polyline, ST_NumPoints(polyline)/2)) - %s) <= %s"
                      "ORDER BY timestamp DESC")
             # Do the query
             cursor.execute(query, [float(lat), float(r), float(lng), float(r)])
             ret_val = cursor.fetchall()
             # Add distance from query point to return
-            for val in enumerate(ret_val):
+            for val in ret_val:
+                val["line"] =  PolylineCodec().encode(wkt.loads(val["line"])["coordinates"])
                 val["timestamp"] = datetime.datetime.strftime(val["timestamp"], '%Y-%m-%d %H:%M:%S')
             cursor.close()
             cnx.close()
@@ -246,6 +271,7 @@ def get_messages():
             try:
                 cnx = connect()
             except sql.Error as e:
+                print(e)
                 return json.dumps({'status': 'error', 'status_extended': 'Couldnt connect to sql database'})
 
             cursor = cnx.cursor(dictionary=True)
@@ -292,6 +318,7 @@ def get_preview():
             try:
                 cnx = connect()
             except sql.Error as e:
+                print(e)
                 return json.dumps({'status': 'error', 'status_extended': 'Couldnt connect to sql database'})
 
             cursor = cnx.cursor(dictionary=True)
@@ -355,6 +382,7 @@ def get_news():
             try:
                 cnx = connect()
             except sql.Error as e:
+                print(e)
                 return json.dumps({'status': 'error', 'status_extended': 'Couldnt connect to sql database'})
 
             cursor = cnx.cursor(dictionary=True)
@@ -395,6 +423,7 @@ def send_message():
             try:
                 cnx = connect()
             except sql.Error as e:
+                print(e)
                 return json.dumps({'status': 'error', 'status_extended': 'Couldnt connect to sql database'})
 
             cursor = cnx.cursor()
@@ -469,7 +498,3 @@ def send_fire_data():
             continue
         result.append([row[0], row[1], int(row[8]) / 100])
     return json.dumps(result)
-
-
-if __name__ == "__main__":
-    api.run(host="0.0.0.0", port=8080)
