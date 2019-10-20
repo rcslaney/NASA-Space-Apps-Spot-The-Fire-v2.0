@@ -135,13 +135,16 @@
         <div class="button_group br">
             <div>
                 <button class="small_button b1" style="bottom: 20px;"><img
-                        src="images/icons/information.svg" style="width: 18px; height: 18px; margin-top: 10px;"></button>
+                        src="images/icons/information.svg" style="width: 18px; height: 18px; margin-top: 10px;" onclick='openPopupPage("Contents", "Information", "pages/info-contents.html")'>
+                </button>
                 <button class="small_button b2" style="bottom: 20px;"><img
-                        src="images/icons/directions-fork.svg" style="width: 18px; height: 18px; margin-top: 10px;"></button>
+                        src="images/icons/directions-fork.svg" style="width: 18px; height: 18px; margin-top: 10px;">
+                </button>
                 <button class="small_button b3" style="bottom: 20px;">C</button>
             </div>
             <button class="big_button" onclick="buttonClick(this)"><img src="images/icons/tools.svg"
-                                                                        style="width: 36px; height: 36px; margin-top: 12px;"></button>
+                                                                        style="width: 36px; height: 36px; margin-top: 12px;">
+            </button>
         </div>
     </div>
 
@@ -269,35 +272,40 @@
                 }
             };
 
-            xhttp.open("GET", "/api/reports?lat=0&lng=0&r=200");
-
-            xhttp.send()
-        }
-
-        function messagePreviewsHTML() {
-            var xhttp = new XMLHttpRequest();
-
-            xhttp.onreadystatechange = function () {
-                if (this.readyState === 4 && this.status === 200) {
-                    console.log("Successfully loaded markers", xhttp.responseText);
-                    data = JSON.parse(xhttp.responseText);
-                    conversations = data["return"];
-                    for(i = 0; i < conversations.length; i++) {
-                        message_html(conversations["name"], conversations["message"], conversations["timestamp"].split(" ")[1], conversations["profilepicturepath"])
-                    }
-                }
-            };
-
-            xhttp.open("GET", "/api/reports?lat=0&lng=0&r=200");
+            xhttp.open("GET", "/api/previews?lat=0&lng=0&r=200");
 
             xhttp.send()
         }
 
         function showMessages() {
-            messages_html = messagePreviewsHTML()
-            openPopup("Direct messages", "Richard Slaney", messages_html)
-            history.pushState({"name": "messages", "data": messages_html}, null, "#messages")
+            var xhttp = new XMLHttpRequest();
+
+            xhttp.onreadystatechange = function () {
+                if (this.readyState === 4 && this.status === 200) {
+                    console.log("Successfully loaded messages", xhttp.responseText);
+                    data = JSON.parse(xhttp.responseText);
+                    conversations = data["return"];
+                    messages_html = "";
+                    for (i in conversations) {
+                        cdata = conversations[i];
+                        console.log(cdata)
+                        messages_html += message_html(cdata["name"], cdata["message"], cdata["timestamp"].split(" ")[1], cdata["otheruserpic"])
+                    }
+
+                    openPopup("Direct messages", "Richard Slaney", messages_html)
+                    history.pushState({"name": "messages", "data": messages_html}, null, "#messages")
+                }
+            };
+
+            xhttp.open("GET", "/api/preview?userid=1");
+
+            xhttp.send()
         }
+
+        function sendMessageDialogue() {
+
+        }
+
     </script>
 
     <script src="scripts/luxon-1.11.4.js"></script>
