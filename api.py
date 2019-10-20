@@ -93,39 +93,36 @@ def get_zones():
 def send_zone():
     # x,y is center of screen
     args = request.args
-    if len(args) != 3:
-        return json.dumps({'status': 'error', 'status_extended': 'This function takes 3 arguments: lat and lng and r'})
+    real_args = ['geojson', 'type', 'description']
+    if set(args) != set(real_args):
+        return json.dumps({'status': 'error', 'status_extended': f'This function takes {len(real_args)} arguments: {real_args}'})
     else:
-        if 'lat' not in args.keys() or ('lng' not in args.keys()) or ('r' not in args.keys()):
-            return json.dumps({'status': 'error', 'status_extended': 'This function takes 3 arguments: lat and lng and r'})
-        else:
-            lat = float(args['lat'])
-            lng = float(args['lng'])
-            r = float(args['r'])
-            # Connect to SQL Server
-            cnx = None
-            try:
-                cnx = connect()
-            except sql.Error as e:
-                return json.dumps({'status': 'error', 'status_extended': 'Couldnt connect to sql database'})
+        data = None
+        with open(args['geojson'], 'r') as json_file:
+            data = json.load(json_file)
+        type = args['type']
+        description = args['description']
+        # Connect to SQL Server
+        cnx = None
+        try:
+            cnx = connect()
+        except sql.Error as e:
+            print(e)
+            return json.dumps({'status': 'error', 'status_extended': 'Couldnt connect to sql database'})
 
-            cursor = cnx.cursor(dictionary=True)
-            query = ("SELECT ST_AsText(zonepoly) as wkt, type, description, timestamp "
-                     "FROM zones "
-                     "WHERE (ABS(X(Centroid(zonepoly)) - %s) <= %s) AND (ABS(Y(Centroid(zonepoly)) - %s ) <= %s) "
-                     "ORDER BY timestamp DESC")
-            # Do the query
-            cursor.execute(query, [float(lat), float(r), float(lng), float(r)])
-            ret_val = cursor.fetchall()
-            # Add distance from query point to return
-            for val in enumerate(ret_val):
-                val["lat"] = float(val['lat'])
-                val['lng'] = float(val['lng'])
-                val["wkt"] = wkt.loads(val["wkt"])
-                val["timestamp"] = datetime.datetime.strftime(val["timestamp"], '%Y-%m-%d %H:%M:%S')
-            cursor.close()
-            cnx.close()
-            return json.dumps({"status": 'success', 'status_extended': '', 'return': ret_val})
+        cursor = cnx.cursor(dictionary=True)
+        query = ("INSERT INTO zones (zonepoly,type,description) "
+                    "VALUES (ST_GeomFromGeoJSON(%s), %s, %s)")
+        # Do the query
+        try:
+            cursor.execute(query, [data, type,description])
+            cnx.commit()
+        except:
+            return json.dumps({"status": 'error', 'status_extended': 'Failed to submit the insert query'})
+        # Close connection
+        cursor.close()
+        cnx.close()
+        return json.dumps({"status": 'success', 'status_extended': ''})
 
 
 @api.route('/api/routes')
@@ -475,4 +472,4 @@ def send_fire_data():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080)
+    api.run(host="0.0.0.0", port=8080)
