@@ -257,7 +257,44 @@ def get_reports():
             cursor.close()
             cnx.close()
             return json.dumps({"status": 'success', 'status_extended': '', 'return': ret_val})
+@api.route('/api/help')
+def get_help():
+    # x,y is center of screen
+    args = request.args
+    if len(args) != 3:
+        return json.dumps({'status': 'error', 'status_extended': 'This function takes 3 arguments: lat and lng and r'})
+    else:
+        if 'lat' not in args.keys() or ('lng' not in args.keys()) or ('r' not in args.keys()):
+            return json.dumps({'status': 'error', 'status_extended': 'This function takes 3 arguments: lat and lng and r'})
+        else:
+            lat = float(args['lat'])
+            lng = float(args['lng'])
+            r = float(args['r'])
+            # Connect to SQL Server
+            cnx = None
+            try:
+                cnx = connect()
+            except sql.Error as e:
+                return json.dumps({'status': 'error', 'status_extended': 'Couldnt connect to sql database'})
 
+            cursor = cnx.cursor(dictionary=True)
+            query = ("SELECT help.id as hid, lat, lng, text, users.profilepicturepath as imgpath, userid, timestamp, title,description, CONCAT(users.firstname, " ", users.lastname) as name "
+                     "FROM reports "
+                     "JOIN users on reports.userid=users.id "
+                     "WHERE (ABS(lat-%s) <= %s) AND (ABS(lng-%s) <= %s) "
+                     "ORDER BY POWER(lat-%s, 2) + POWER(lng-%s, 2) ASC")
+            # Do the query
+            cursor.execute(query, [float(lat), float(r), float(lng), float(r), float(lat), float(lng)])
+            ret_val = cursor.fetchall()
+            # Add distance from query point to return
+            for row in ret_val:
+                row["lat"] = float(row['lat'])
+                row['lng'] = float(row['lng'])
+                row["timestamp"] = datetime.datetime.strftime(row["timestamp"], '%Y-%m-%d %H:%M:%S')
+                row['dst'] = geopy.distance.distance((row['lat'],row['lng'] ), (float(lat), float(lng))).km
+            cursor.close()
+            cnx.close()
+            return json.dumps({"status": 'success', 'status_extended': '', 'return': ret_val})
 @api.route('/api/messages')
 def get_messages():
     args = request.args
