@@ -1,4 +1,7 @@
 import datetime
+import random
+import string
+
 from polyline.codec import PolylineCodec
 from flask import Flask, request, send_from_directory, Blueprint
 import requests
@@ -8,6 +11,7 @@ import mysql.connector as sql
 import geopy.distance
 from geomet import wkt
 import os
+import hashlib
 
 api = Blueprint('account_api', __name__)
 
@@ -539,3 +543,81 @@ def send_fire_data():
             continue
         result.append([row[0], row[1], int(row[8]) / 100])
     return json.dumps(result)
+
+
+@api.route("/api/login", methods=["POST"])
+def login():
+    args = request.form
+    if (len(args) != 2):
+        return json.dumps({'status': 'error', 'status_extended': 'This function takes 2 arguments: email and password'})
+    else:
+        if ('email' not in args.keys() or 'password' not in args.keys()):
+            return json.dumps({'status': 'error', 'status_extended': 'This function takes 2 arguments: email and password'})
+        else:
+            # Connect to SQL Server
+            cnx = None
+            try:
+                cnx = connect()
+            except sql.Error as e:
+                print(e)
+                return json.dumps({'status': 'error', 'status_extended': 'Couldnt connect to sql database'})
+
+            cursor = cnx.cursor(dictionary=True)
+            query = ("SELECT * "
+                     "FROM users "
+                     "WHERE email = %s AND password = %s ")
+
+            # Do the query
+            cursor.execute(query, [args["email"], hashlib.sha256(args["password"].encode("UTF8")).hexdigest()])
+            ret_val = cursor.fetchall()
+            # Close connection
+
+            session = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(32))
+
+            if(len(ret_val) == 1):
+                query = "UPDATE users set session=%s WHERE email=%s"
+
+                # Do the query
+                try:
+                    cursor.execute(query, [session, args["email"]])
+                    cnx.commit()
+                except Exception as e:
+                    return json.dumps({"status": 'error', 'status_extended': 'Failed to submit the insert query: ' + repr(e)})
+
+                cursor.close()
+                cnx.close()
+
+                return json.dumps({"status": "success", "status_extended": "Correct login", "session": session})
+            else:
+                return json.dumps({"status": "error", "status_extended": "Incorrect username or password"})
+
+            # return json.dumps({"status": 'success', 'status_extended': '', 'return': ret_val})
+
+
+@api.route("/api/getuser")
+def get_user():
+    session = request.cookies.get('session')
+
+    # Connect to SQL Server
+    cnx = None
+    try:
+        cnx = connect()
+    except sql.Error as e:
+        print(e)
+        return json.dumps({'status': 'error', 'status_extended': 'Couldnt connect to sql database'})
+
+    cursor = cnx.cursor(dictionary=True)
+    query = ("SELECT id "
+             "FROM users "
+             "WHERE session = %s ")
+
+    # Do the query
+    cursor.execute(query, [session])
+    ret_val = cursor.fetchall()
+
+    if len(ret_val) == 1:
+        print(repr(ret_val))
+        return json.dumps({"status": "success", "status_extended": "", "userid": ret_val[0]["id"]})
+    else:
+        return json.dumps({"status": "error", "status_extended": "Not logged in"})
+

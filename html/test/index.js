@@ -296,7 +296,7 @@ function addAreas() {
 
                 gcoords = [];
 
-                for(i in coords) {
+                for (i in coords) {
                     gcoords[i] = {lat: coords[i][0], lng: coords[i][1]}
                 }
 
@@ -331,7 +331,7 @@ function showHelp() {
             console.log("Successfully loaded messages", xhttp.responseText);
             data = JSON.parse(xhttp.responseText);
             helps = data["return"];
-            help_html = "<span class='new_message' onclick='sendMessageDialogue()'>Request help</span>";
+            help_html = "<span class='new_message' onclick='requestHelp()'>Request help</span>";
             for (i in helps) {
                 hdata = helps[i];
                 help_html += "<span class='help_box'><img src='" + hdata["imgpath"] + "'><h3>" + hdata["title"] + "</h3><h4>" + hdata["fullname"] + "</h4></span>"
@@ -348,4 +348,44 @@ function showHelp() {
     xhttp.open("GET", "/api/help?lat=0&lng=0&r=200");
 
     xhttp.send()
+}
+
+function requestHelp() {
+    openPopupPage("Request help", "Richard Slaney", "pages/request_help.html")
+}
+
+function showLogin() {
+    openPopupPage("Login", "My account", "pages/login.html")
+}
+
+function submitLogin() {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            data = JSON.parse(xhr.responseText)
+            if (data["status"] === "success") {
+                openPopup("Logged in!", "Success", "<p>You have been logged in successfully.</p>");
+                document.cookie = 'session=' + data["session"] + '; expires=Mon, 3 Aug 2020 20:47:11 UTC; path=/'
+            } else {
+                document.getElementById("status_login").innerHTML = data["status_extended"]
+            }
+        }
+    };
+    xhr.open('POST', '/api/login', true);
+    var formData = new FormData();
+    formData.append("email", document.getElementById("email").value);
+    formData.append("password", document.getElementById("password").value);
+    xhr.send(formData); // Simple!
+}
+
+function getID() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("GET", "/api/getuser", false);
+    xhttp.send()
+    data = JSON.parse(xhttp.responseText);
+    if (data["status"] === "success") {
+        return data["userid"]
+    } else {
+        return 0
+    }
 }

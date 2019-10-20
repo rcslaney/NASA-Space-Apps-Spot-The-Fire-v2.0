@@ -1,0 +1,10 @@
+<form class="request_help">
+    <p>Fill out the form below and a message will be broadcasted to all those near by asking for help on the help page.</p>
+    <input type="text" id="title" placeholder="Summary/title" style="width: 100%;">
+    <textarea name="message" id="description" placeholder="Description of help needed"></textarea>
+
+    <label for="lat">Latitude:&nbsp;&nbsp;&nbsp; </label><input type="text" name="lat" id="lat"><br><br>
+    <label for="lng">Longitude: </label><input type="text" name="lng" id="lng" onload="navigator.geolocation.getCurrentPosition(populateFormPosition);"><br><br>
+    <span>Autofill location with: <span style="text-decoration: underline; cursor: pointer;" onclick="navigator.geolocation.getCurrentPosition(populateFormPositionGPS)">Your location</span> or <span style="text-decoration: underline; cursor: pointer;" onclick="populateFormPositionMap()">selected map location</span></span><br><br>
+    <button type="button" onclick="sendMessage()">Send help request</button>
+</form>

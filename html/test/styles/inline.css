@@ -486,7 +486,7 @@ textarea {
     border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.sendmessage > button {
+.sendmessage > button, .request_help > button {
     outline: none;
     border: none;
     padding: 10px;
