@@ -18,11 +18,17 @@ function openPopup(title, title2, html) {
     document.getElementById("title2").innerHTML = title2;
     document.getElementById("bubble").style.height = "calc(100vh - 40px)";
     document.getElementById("scrollable_bubble").innerHTML = html;
+    document.getElementById("dimmed").style.pointerEvents = "initial";
+    document.getElementById("dimmed").style.background = "rgba(0, 0, 0, 0.3)";
+    document.getElementById("dimmed").style.cursor = "pointer";
 }
 
 function close_popup() {
     openPopup("NEWS", "4:20pm", "")
     document.getElementById("bubble").style.height = "";
+    document.getElementById("dimmed").style.pointerEvents = "none";
+    document.getElementById("dimmed").style.background = "rgba(0, 0, 0, 0)";
+    document.getElementById("dimmed").style.cursor = "";
 }
 
 function message_html(id, name, last_message, time, img_path) {
@@ -102,7 +108,7 @@ function infoCallback(infowindow, marker) {
     };
 }
 
-function addMarkers() {
+function addReportMarkers() {
     var xhttp = new XMLHttpRequest();
 
     xhttp.onreadystatechange = function () {
@@ -131,7 +137,42 @@ function addMarkers() {
         }
     };
 
-    xhttp.open("GET", "/api/previews?lat=0&lng=0&r=200");
+    xhttp.open("GET", "/api/reports?lat=0&lng=0&r=200");
+
+    xhttp.send()
+}
+
+
+function addPOIMarkers() {
+    var xhttp = new XMLHttpRequest();
+
+    xhttp.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            console.log("Successfully loaded markers", xhttp.responseText);
+            data = JSON.parse(xhttp.responseText);
+            reports = data["return"];
+            for (i = 0; i < reports.length; i++) {
+                mdata = reports[i];
+
+                // First marker
+                var marker = new google.maps.Marker({
+                    position: new google.maps.LatLng(mdata["lat"], mdata["lng"]),
+                    map: map,
+                    title: mdata["title"]
+                });
+
+                // First infowindow
+                var infowindow = new google.maps.InfoWindow({
+                    content: "<p>Location: " + mdata["lat"] + ", " + mdata["lng"] + " " + Math.round(mdata["dst"]) + "km away</p><p>Title: " + mdata["title"] + "</p><p>" + mdata["description"] + "</p>"
+                });
+
+                // Attach it to the marker we've just added
+                google.maps.event.addListener(marker, 'click', infoCallback(infowindow, marker));
+            }
+        }
+    };
+
+    xhttp.open("GET", "/api/poi?lat=0&lng=0&r=200");
 
     xhttp.send()
 }
@@ -221,6 +262,9 @@ function viewConversation(userid) {
                     messages_html += "<span class='message_bubble_outer'><span class='message_bubble reply'>" + message["message"] + "</span></span>";
                 }
             }
+
+            messages_html += "<span class='message_bubble_outer reply_field'><input type='text' placeholder='Reply' id='message'><input type='hidden' id='recepient' value='" + userid + "'><button type='button' onclick='sendMessage()'>Send</button></span>";
+
             history.pushState({
                 "prevPage": {
                     "title": "Conversation",

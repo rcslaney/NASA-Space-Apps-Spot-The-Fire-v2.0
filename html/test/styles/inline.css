@@ -305,6 +305,10 @@ body {
 .message > p {
     display: inline-block;
     margin: 0 0 10px 10px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    width: calc(100% - 74px);
 }
 
 .message > hr {
@@ -386,7 +390,7 @@ textarea {
     font-weight: lighter;
     color: white;
     font-size: 48px;
-    z-index: 100;
+    z-index: 25;
     text-align: center;
     user-select: none;
     pointer-events: none;
@@ -420,9 +424,39 @@ textarea {
     display: block;
     float: left;
     margin: 10px;
+    max-width: 80%;
 }
 
 .reply {
     background: #999;
     float: right;
+}
+
+#dimmed {
+    background: rgba(0, 0, 0, 0);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 50;
+    transition: background 0.5s;
+    pointer-events: none;
+}
+
+.reply_field {
+    display: flex;
+    padding: 10px;
+}
+
+.reply_field > input {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+.reply_field > button {
+    outline: none;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
 }
