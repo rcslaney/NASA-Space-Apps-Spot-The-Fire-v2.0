@@ -11,11 +11,12 @@ import os
 
 api = Blueprint('account_api', __name__)
 
+
 def connect():
-    if os.environ['RUNNING_LOCALLY'] == "yes":
+    if os.environ.get('RUNNING_LOCALLY') is not None:
         return sql.connect(user='root', password='BananaShoestring490', host="35.189.219.41", database='app')
     else:
-        return sql.connect(user='root', password='BananaShoestring490',unix_socket="/cloudsql/nasa-256322:europe-west1:sql-nasa", database='app')
+        return sql.connect(user='root', password='BananaShoestring490', unix_socket="/cloudsql/nasa-256322:europe-west1:sql-nasa", database='app')
 
 
 
@@ -257,6 +258,8 @@ def get_reports():
             cursor.close()
             cnx.close()
             return json.dumps({"status": 'success', 'status_extended': '', 'return': ret_val})
+
+
 @api.route('/api/help')
 def get_help():
     # x,y is center of screen
