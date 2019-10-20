@@ -263,7 +263,7 @@ def get_preview():
             cursor = cnx.cursor(dictionary=True)
 
             query = ("SELECT messages.id as mid,userfromid,u1.firstname as userfromfirst, u1.lastname as userfromlast,usertoid, u2.firstname as usertofirst, "
-                     "u2.lastname as usertolast,message, timestamp "
+                     "u2.lastname as usertolast, u1.profilepicture path as userfrompic, u2.profilepicturepath as usertopic,message, timestamp "
                      "FROM messages "
                      "JOIN users as u1 ON userfromid=u1.id "
                      "JOIN users as u2 ON usertoid=u2.id "
@@ -277,15 +277,15 @@ def get_preview():
             for index, row in enumerate(ret_val):
                 dict_insert = {'id': row["mid"], 'message': row["message"], 'timestamp': row["timestamp"]}
                 otheruser = None
-                print(index)
-                print(row)
                 if row["userfromid"] == int(userid):
                     otheruser = row["usertoid"]
                     dict_insert['name'] = row["usertofirst"] + " " + row["usertolast"]
+                    dict_insert["otheruserpic"] = row["usertopic"]
                 elif row["usertoid"] == int(userid):
                     print("SECOND IF")
                     otheruser = row["userfromid"]
                     dict_insert['name'] = row['userfromfirst'] + " " + row['userfromlast']
+                    dict_insert["otheruserpic"] = row["userfrompic"]
                 else:
                     print("Not by user")
                 if otheruser in latest.keys():
