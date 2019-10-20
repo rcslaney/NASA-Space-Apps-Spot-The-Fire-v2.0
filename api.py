@@ -121,8 +121,7 @@ def send_zone():
         return json.dumps({'status': 'error', 'status_extended': 'This function takes {} arguments: {}'}.format(len(real_args), real_args))
     else:
         data = None
-        with open(args['geojson'], 'r') as json_file:
-            data = json.load(json_file)
+        data = json.loads(args["geojson"])
         type = args['type']
         description = args['description']
         # Connect to SQL Server
@@ -132,16 +131,16 @@ def send_zone():
         except sql.Error as e:
             print(e)
             return json.dumps({'status': 'error', 'status_extended': 'Couldnt connect to sql database'})
-
+        print(args["geojson"])
         cursor = cnx.cursor(dictionary=True)
-        query = ("INSERT INTO zones (zonepoly,type,description) "
+        query = ("INSERT INTO zones (zonepoly,`type`,description) "
                     "VALUES (ST_GeomFromGeoJSON(%s), %s, %s)")
         # Do the query
         try:
-            cursor.execute(query, [data, type,description])
+            cursor.execute(query, [args["geojson"], type, description])
             cnx.commit()
-        except:
-            return json.dumps({"status": 'error', 'status_extended': 'Failed to submit the insert query'})
+        except Exception as e:
+            return json.dumps({"status": 'error', 'status_extended': 'Failed to submit the insert query: ' + repr(e)})
         # Close connection
         cursor.close()
         cnx.close()
