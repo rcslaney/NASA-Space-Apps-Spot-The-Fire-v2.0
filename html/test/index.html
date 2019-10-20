@@ -50,6 +50,226 @@
         map = new google.maps.Map(document.getElementById('googleMap'), {
             center: sanFrancisco,
             zoom: 13,
+            styles: [
+                {
+                    "featureType": "administrative",
+                    "elementType": "geometry",
+                    "stylers": [
+                        {
+                            "visibility": "off"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "administrative.land_parcel",
+                    "stylers": [
+                        {
+                            "visibility": "off"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "administrative.locality",
+                    "elementType": "labels.text.fill",
+                    "stylers": [
+                        {
+                            "color": "#9dcadd"
+                        },
+                        {
+                            "weight": 1.5
+                        }
+                    ]
+                },
+                {
+                    "featureType": "administrative.neighborhood",
+                    "stylers": [
+                        {
+                            "visibility": "off"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "administrative.neighborhood",
+                    "elementType": "labels.text",
+                    "stylers": [
+                        {
+                            "color": "#a3d0e0"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "administrative.neighborhood",
+                    "elementType": "labels.text.fill",
+                    "stylers": [
+                        {
+                            "color": "#a3d0e0"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "administrative.neighborhood",
+                    "elementType": "labels.text.stroke",
+                    "stylers": [
+                        {
+                            "color": "#a3d0e0"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "landscape.man_made",
+                    "elementType": "geometry.fill",
+                    "stylers": [
+                        {
+                            "color": "#e9f3f1"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "landscape.man_made",
+                    "elementType": "labels.icon",
+                    "stylers": [
+                        {
+                            "color": "#a3d0e0"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "landscape.man_made",
+                    "elementType": "labels.text",
+                    "stylers": [
+                        {
+                            "color": "#537090"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "landscape.man_made",
+                    "elementType": "labels.text.fill",
+                    "stylers": [
+                        {
+                            "color": "#537090"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "landscape.man_made",
+                    "elementType": "labels.text.stroke",
+                    "stylers": [
+                        {
+                            "color": "#537090"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "landscape.natural",
+                    "elementType": "geometry.fill",
+                    "stylers": [
+                        {
+                            "color": "#bcecda"
+                        },
+                        {
+                            "weight": 1
+                        }
+                    ]
+                },
+                {
+                    "featureType": "landscape.natural",
+                    "elementType": "geometry.stroke",
+                    "stylers": [
+                        {
+                            "color": "#c1efdd"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "landscape.natural.landcover",
+                    "elementType": "geometry.fill",
+                    "stylers": [
+                        {
+                            "color": "#fff700"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "landscape.natural.terrain",
+                    "elementType": "geometry.fill",
+                    "stylers": [
+                        {
+                            "color": "#9feec8"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "poi",
+                    "stylers": [
+                        {
+                            "visibility": "off"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "poi",
+                    "elementType": "labels.text",
+                    "stylers": [
+                        {
+                            "visibility": "off"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "road",
+                    "elementType": "labels",
+                    "stylers": [
+                        {
+                            "visibility": "off"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "road",
+                    "elementType": "labels.icon",
+                    "stylers": [
+                        {
+                            "visibility": "off"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "road.highway",
+                    "elementType": "geometry.fill",
+                    "stylers": [
+                        {
+                            "color": "#ffc0a5"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "transit",
+                    "stylers": [
+                        {
+                            "visibility": "off"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "water",
+                    "elementType": "geometry.fill",
+                    "stylers": [
+                        {
+                            "color": "#64e1f7"
+                        }
+                    ]
+                },
+                {
+                    "featureType": "water",
+                    "elementType": "labels.text",
+                    "stylers": [
+                        {
+                            "visibility": "off"
+                        }
+                    ]
+                }
+            ],
             mapTypeId: 'roadmap',
             zoomControl: false,
             mapTypeControl: false,
@@ -158,9 +378,11 @@
     addAreas();
     addPOIMarkers();
     addReportMarkers();
+
     function pos(position) {
         map.panTo({lat: position.coords.latitude, lng: position.coords.longitude})
     }
+
     navigator.geolocation.getCurrentPosition(pos)
 </script>
 </body>
