@@ -12,7 +12,7 @@ api = Blueprint('account_api', __name__)
 
 
 def connect():
-    return sql.connect(user='root', password='BananaShoestring490', host='35.189.219.41', database='app')
+    return sql.connect(user='root', password='BananaShoestring490',unix_socket="/cloudsql/nasa-256322:europe-west1:sql-nasa", database='app')
 
 
 @api.route('/api/poi')
