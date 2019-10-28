@@ -4,3 +4,4 @@ geomet
 geopy
 mysql-connector
 polyline
+pillow

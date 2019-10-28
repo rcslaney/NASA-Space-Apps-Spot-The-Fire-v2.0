@@ -1,15 +1,15 @@
 {
-  "short_name": "Fyre",
-  "name": "Fyre",
-  "start_url": "/html/test/index.html",
+  "short_name": "phoeNEX",
+  "name": "phoeNEX",
+  "start_url": "/app/",
   "icons": [
     {
-      "src": "/html/test/images/logo.png",
+      "src": "/app/images/logo.png",
       "type": "image/png"
     }
   ],
   "background_color": "#3367D6",
   "display": "standalone",
-  "scope": "/html/",
+  "scope": "/app/",
   "theme_color": "#3367D6"
 }

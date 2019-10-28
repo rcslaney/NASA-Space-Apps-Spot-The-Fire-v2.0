@@ -279,14 +279,15 @@ body {
 
 .message {
     display: block;
-    border-bottom:  1px solid rgba(0, 0, 0, 0.1);
-    padding: 10px;
+    border-top:  1px solid rgba(0, 0, 0, 0.1);
+    padding: 10px 30px;
     cursor: pointer;
     transition: background 0.5s;
+    margin: 0 -30px;
 }
 
 .message:hover {
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(0, 0, 0, 0.1);
 }
 
 .message > img {
@@ -295,6 +296,7 @@ body {
     border-radius: 32px;
     display: inline-block;
     float: left;
+    margin-top: 6px;
 }
 
 .message > h3 {
@@ -316,6 +318,14 @@ body {
     border-bottom: 1px solid #BBB;
 }
 
+.message > .title2 {
+    margin: 10px!important;
+}
+
+#scrollable_bubble > .message:last-child {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
 .new_message {
     font-size: 24px;
     color: #AAA;
@@ -326,7 +336,7 @@ body {
     user-select: none;
 }
 
-#scrollable_bubble > .message:first-child {
+#scrollable_bubble:first-child {
     border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
@@ -501,4 +511,80 @@ textarea {
     border: none;
     background: white;
     border-radius: 5px;
+}
+
+* {
+    -webkit-tap-highlight-color: transparent;
+}
+
+#scrollable_bubble button {
+    outline: none;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    background: rgb(68, 68, 238);
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+#imgpreview img {
+    border-radius: 5px;
+    object-fit: cover;
+    width: 100px;
+    height: 100px;
+    margin: 10px 0;
+}
+
+.poi_box {
+    display: block;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+.poi_box:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.poi_box > h3 {
+    display: inline-block;
+}
+
+.poi_box > p {
+    display: inline-block;
+}
+
+.poi_box > button {
+    float: right;
+}
+
+.poi_box > .dist {
+    color: rgb(150, 150, 150);
+    float: right;
+    font-weight: lighter;
+}
+
+ul {
+    padding: 0 0 0 15px;
+}
+
+ul.links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+ul.links > li {
+    padding: 20px 25px;
+    cursor: pointer;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    margin: 0 -30px;
+}
+
+ul.links > li:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+ul.links > li:last-child {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }

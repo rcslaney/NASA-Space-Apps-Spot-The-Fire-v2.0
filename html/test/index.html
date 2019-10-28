@@ -4,10 +4,12 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <title>Fyre</title>
+    <title>phoeNEX</title>
     <link rel="stylesheet" type="text/css" href="styles/inline.css">
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="/html/test/images/logo.png">
+    <link rel="apple-touch-icon" href="/app/images/logo.png">
+    <script src="/html/test/loadimage-js/load-image.all.min.js"></script>
+    <link rel="shortcut icon" type="image/png" href="/app/images/logo.png"/>
 </head>
 <body>
 <div id="bubble">
@@ -22,28 +24,90 @@
     <div id="crosshair">+</div>
     <div id="googleMap" style="width:100%;height:100%;"></div>
 
-    <script type="text/javascript"
-            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC24s5UrWB7uiAPHImehxTb-5kaidfpZpk&libraries=visualization"></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC24s5UrWB7uiAPHImehxTb-5kaidfpZpk&libraries=visualization,geometry"></script>
 
     <script>
-        /* Data points defined as a mixture of WeightedLocation and LatLng objects */
-        var heatMapData = [
-            {location: new google.maps.LatLng(37.782, -122.447), weight: 0.5},
-            new google.maps.LatLng(37.782, -122.445),
-            {location: new google.maps.LatLng(37.782, -122.443), weight: 2},
-            {location: new google.maps.LatLng(37.782, -122.441), weight: 3},
-            {location: new google.maps.LatLng(37.782, -122.439), weight: 2},
-            new google.maps.LatLng(37.782, -122.437),
-            {location: new google.maps.LatLng(37.782, -122.435), weight: 0.5},
+        var TILE_SIZE = 256;
 
-            {location: new google.maps.LatLng(37.785, -122.447), weight: 3},
-            {location: new google.maps.LatLng(37.785, -122.445), weight: 2},
-            new google.maps.LatLng(37.785, -122.443),
-            {location: new google.maps.LatLng(37.785, -122.441), weight: 0.5},
-            new google.maps.LatLng(37.785, -122.439),
-            {location: new google.maps.LatLng(37.785, -122.437), weight: 2},
-            {location: new google.maps.LatLng(37.785, -122.435), weight: 3}
-        ];
+      //Mercator --BEGIN--
+      function bound(value, opt_min, opt_max) {
+          if (opt_min !== null) value = Math.max(value, opt_min);
+          if (opt_max !== null) value = Math.min(value, opt_max);
+          return value;
+      }
+
+      function degreesToRadians(deg) {
+          return deg * (Math.PI / 180);
+      }
+
+      function radiansToDegrees(rad) {
+          return rad / (Math.PI / 180);
+      }
+
+      function MercatorProjection() {
+          this.pixelOrigin_ = new google.maps.Point(TILE_SIZE / 2,
+          TILE_SIZE / 2);
+          this.pixelsPerLonDegree_ = TILE_SIZE / 360;
+          this.pixelsPerLonRadian_ = TILE_SIZE / (2 * Math.PI);
+      }
+
+      MercatorProjection.prototype.fromLatLngToPoint = function (latLng,
+      opt_point) {
+          var me = this;
+          var point = opt_point || new google.maps.Point(0, 0);
+          var origin = me.pixelOrigin_;
+
+          point.x = origin.x + latLng.lng() * me.pixelsPerLonDegree_;
+
+          // NOTE(appleton): Truncating to 0.9999 effectively limits latitude to
+          // 89.189.  This is about a third of a tile past the edge of the world
+          // tile.
+          var siny = bound(Math.sin(degreesToRadians(latLng.lat())), - 0.9999,
+          0.9999);
+          point.y = origin.y + 0.5 * Math.log((1 + siny) / (1 - siny)) * -me.pixelsPerLonRadian_;
+          return point;
+      };
+
+      MercatorProjection.prototype.fromPointToLatLng = function (point) {
+          var me = this;
+          var origin = me.pixelOrigin_;
+          var lng = (point.x - origin.x) / me.pixelsPerLonDegree_;
+          var latRadians = (point.y - origin.y) / -me.pixelsPerLonRadian_;
+          var lat = radiansToDegrees(2 * Math.atan(Math.exp(latRadians)) - Math.PI / 2);
+          return new google.maps.LatLng(lat, lng);
+      };
+
+      //Mercator --END--
+
+
+      var data = [
+      new google.maps.LatLng(-17.3409585, - 63.2597288),
+	  new google.maps.LatLng(-17.3509585, - 63.2797288),
+	  new google.maps.LatLng(-17.3609585, - 63.2497288),
+      ];
+
+	  var desiredRadiusPerPointInMeters = 1000;
+      function getNewRadius() {
+
+
+          var numTiles = 1 << map.getZoom();
+          var center = map.getCenter();
+          var moved = google.maps.geometry.spherical.computeOffset(center, 10000, 90); /*1000 meters to the right*/
+          var projection = new MercatorProjection();
+          var initCoord = projection.fromLatLngToPoint(center);
+          var endCoord = projection.fromLatLngToPoint(moved);
+          var initPoint = new google.maps.Point(
+            initCoord.x * numTiles,
+            initCoord.y * numTiles);
+           var endPoint = new google.maps.Point(
+            endCoord.x * numTiles,
+            endCoord.y * numTiles);
+        var pixelsPerMeter = (Math.abs(initPoint.x-endPoint.x))/10000.0;
+        var totalPixelSize = Math.floor(desiredRadiusPerPointInMeters*pixelsPerMeter);
+        console.log(totalPixelSize);
+        return totalPixelSize;
+
+      }
 
         var sanFrancisco = new google.maps.LatLng(37.774546, -122.433523);
 
@@ -277,10 +341,19 @@
             fullscreenControl: false
         });
 
+        pointArray = new google.maps.MVCArray(data);
+
         heatmap = new google.maps.visualization.HeatmapLayer({
-            data: heatMapData
+            data: pointArray,
+            radius: getNewRadius(),
+            maxIntensity: 1
         });
+
         heatmap.setMap(map);
+
+        google.maps.event.addListener(map, 'zoom_changed', function () {
+              heatmap.setOptions({radius:getNewRadius()});
+          });
 
         function addHeatMapData() {
             //
@@ -289,49 +362,25 @@
                 if (this.readyState === 4 && this.status === 200) {
                     heatmap_data = JSON.parse(xhttp.responseText);
                     heatmap_data_object = [];
+                    custom_data = JSON.parse("[[40.59257709971612,24.67121039632866,1],[40.59257709971612,24.67121039632866,1],[40.59257709971612,24.67121039632866,1],[40.59257709971612,24.67121039632866,1],[40.59257709971612,24.67121039632866,1],[40.62020601925955,24.682883369961473,1],[40.61838182020796,24.6897498250396,1],[40.60326511180848,24.6952429891021,1],[40.60352577368365,24.670867073574755,1],[40.609260077753916,24.710005867520067,1],[40.621769578798606,24.73541175130913,1],[40.61942422576567,24.70794593099663,1],[40.641310984938606,24.703826057949755,1],[40.6400084024507,24.668120491543505,1],[40.650428350631934,24.695586311856005,1],[40.660325794535666,24.66846381429741,1],[40.66970096591636,24.682883369961473,1],[40.69131092237872,24.665373909512255,1],[40.697558278692895,24.68322669271538,1],[40.68454229198755,24.668120491543505,1],[40.69677739118985,24.714125740566942,1],[40.68115771898961,24.709319222012255,1],[40.68610434463513,24.735755074063036,1],[40.69990088628192,24.746054756680223,1],[40.674648441715355,24.723052132168505,1],[40.66136754532327,24.705542671719286,1],[40.673346509991376,24.740561592617723,1],[40.660325794535666,24.718245613613817,1],[40.673346509991376,24.74914466146538,1],[40.66214884773717,24.757727730313036,1],[40.651470255974786,24.754294502773973,1],[40.641310984938606,24.71893225912163,1],[40.64052943849605,24.770430672207567,1],[40.612387672597485,24.741591560879442,1],[40.636882100774145,24.740218269863817,1],[40.61890302502003,24.7282019734771,1],[40.638184744265224,24.737815010586473,1],[40.62020601925955,24.705885994473192,1],[40.61395141512444,24.722365486660692,1],[40.60639298721952,24.705542671719286,1],[40.60587168481633,24.727515327969286,1],[40.6149938898108,24.740561592617723,1],[40.638184744265224,24.73541175130913,1],[40.63974788290293,24.708632576504442,1]]")
                     for (let key in heatmap_data) {
                         datum = heatmap_data[key];
-                        heatmap_data_object.push({
-                            location: new google.maps.LatLng(datum[0], datum[1]),
-                            weight: datum[2]
-                        })
+                        heatmap_data_object.push(new google.maps.LatLng(datum[0], datum[1]))
                     }
-                    heatmap.setOptions({data: heatmap_data_object});
-                    console.log(heatmap_data)
+                    for (let key in custom_data) {
+                        datum = custom_data[key];
+                        heatmap_data_object.push(new google.maps.LatLng(datum[0], datum[1]))
+                    }
+
+                    pointArray = new google.maps.MVCArray(heatmap_data_object);
+
+                    heatmap.setOptions({data: pointArray});
                 }
             };
             xhttp.open("GET", "/api/fire_data", true);
             xhttp.send();
         }
     </script>
-
-
-    <div id="addDialogContainer">
-        <div class="dialog">
-            <div class="dialog-title">Add new city</div>
-            <div class="dialog-body">
-                <select id="selectCityToAdd" aria-label="City to add">
-                    <!--
-                      Values are lat/lon values, use Google Maps to find and add
-                      additional cities.
-                    -->
-                    <option value="28.6472799,76.8130727">Dehli, India</option>
-                    <option value="-5.7759362,106.1174957">Jakarta, Indonesia</option>
-                    <option value="51.5287718,-0.2416815">London, UK</option>
-                    <option value="40.6976701,-74.2598666">New York, USA</option>
-                    <option value="48.8589507,2.2770202">Paris, France</option>
-                    <option value="-64.8251018,-63.496847">Port Lockroy, Antarctica</option>
-                    <option value="37.757815,-122.5076401">San Francisco, USA</option>
-                    <option value="31.2243085,120.9162955">Shanghai, China</option>
-                    <option value="35.6735408,139.5703032">Tokyo, Japan</option>
-                </select>
-            </div>
-            <div class="dialog-buttons">
-                <button id="butDialogCancel" class="button">Cancel</button>
-                <button id="butDialogAdd" class="button">Add</button>
-            </div>
-        </div>
-    </div>
 
     <div id="buttons">
         <div class="button_group bl">
@@ -372,12 +421,12 @@
     </div>
 </main>
 <script src="index.js"></script>
-<script src="scripts/luxon-1.11.4.js"></script>
-<script src="scripts/app.js"></script>
 <script type="application/javascript">
     addAreas();
     addPOIMarkers();
     addReportMarkers();
+    showNews();
+    addHeatMapData();
 
     function pos(position) {
         map.panTo({lat: position.coords.latitude, lng: position.coords.longitude})

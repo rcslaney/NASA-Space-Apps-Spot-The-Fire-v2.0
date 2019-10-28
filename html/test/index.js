@@ -1,6 +1,5 @@
 function buttonClick(e) {
     bg = e.parentElement;
-    console.log(bg)
     sbs = bg.children[0].children;
     if (sbs[0].style.bottom === "") {
         for (key in sbs) {
@@ -17,6 +16,7 @@ function openPopup(title, title2, html) {
     document.getElementById("title").innerHTML = title;
     document.getElementById("title2").innerHTML = title2;
     document.getElementById("bubble").style.height = "calc(100vh - 40px)";
+    document.getElementById("scrollable_bubble").style.padding = "";
     document.getElementById("scrollable_bubble").innerHTML = html;
     document.getElementById("dimmed").style.pointerEvents = "initial";
     document.getElementById("dimmed").style.background = "rgba(0, 0, 0, 0.3)";
@@ -24,7 +24,7 @@ function openPopup(title, title2, html) {
 }
 
 function close_popup() {
-    openPopup("NEWS", "4:20pm", "")
+    showNews()
     document.getElementById("bubble").style.height = "";
     document.getElementById("dimmed").style.pointerEvents = "none";
     document.getElementById("dimmed").style.background = "rgba(0, 0, 0, 0)";
@@ -34,8 +34,8 @@ function close_popup() {
     addReportMarkers();
 }
 
-function message_html(id, name, last_message, time, img_path) {
-    return "<span class='message' onclick='viewConversation(" + id + ")'><img src='" + img_path + "'><h3>" + name + "</h3><h3 class='title2'>" + time + "</h3><br><p>" + last_message + "</p><br></span>"
+function message_html(id, name, last_message, time, imgid) {
+    return "<span class='message' onclick='viewConversation(" + id + ")'><img src='/uploaded_image?id=" + imgid + "'><h3>" + name + "</h3><h3 class='title2'>" + time + "</h3><br><p>" + last_message + "</p><br></span>"
 }
 
 function report() {
@@ -68,7 +68,6 @@ function openPopupPage(title, title2, pagepath, callback = function () {
 history.replaceState({"name": "home"}, null, "#home")
 
 window.onpopstate = function (event) {
-    console.log(event.state);
     if (event.state["name"] === "home") {
         close_popup()
     } else if (event.state["prevPage"] !== undefined) {
@@ -78,7 +77,6 @@ window.onpopstate = function (event) {
 };
 
 function populateFormPositionGPS(position) {
-    console.log(position)
     document.getElementById("lat").value = position.coords.latitude;
     document.getElementById("lng").value = position.coords.longitude;
 }
@@ -117,7 +115,6 @@ function addReportMarkers() {
 
     xhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
-            console.log("Successfully loaded markers", xhttp.responseText);
             data = JSON.parse(xhttp.responseText);
             reports = data["return"];
             for (i = 0; i < reports.length; i++) {
@@ -132,7 +129,7 @@ function addReportMarkers() {
 
                 // First infowindow
                 var infowindow = new google.maps.InfoWindow({
-                    content: "<img src='/" + mdata["imgpath"] + "'><p>Location: " + mdata["lat"] + ", " + mdata["lng"] + "</p><p>Report type: " + mdata["reporttype"] + "</p><p>" + mdata["text"] + "</p>"
+                    content: "<img src='/uploaded_image?id=" + mdata["imgid"] + "' style='width: 200px;'><p>Location: " + mdata["lat"] + ", " + mdata["lng"] + "</p><p>Report type: " + mdata["reporttype"] + "</p><p>" + mdata["text"] + "</p>"
                 });
 
                 // Attach it to the marker we've just added
@@ -152,7 +149,6 @@ function addPOIMarkers() {
 
     xhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
-            console.log("Successfully loaded markers", xhttp.responseText);
             data = JSON.parse(xhttp.responseText);
             reports = data["return"];
             for (i = 0; i < reports.length; i++) {
@@ -186,20 +182,18 @@ function showMessages() {
 
     xhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
-            console.log("Successfully loaded messages", xhttp.responseText);
             data = JSON.parse(xhttp.responseText);
             conversations = data["return"];
             messages_html = "<span class='new_message' onclick='sendMessageDialogue()'>+ Create new message</span>";
             for (i in conversations) {
                 cdata = conversations[i];
-                console.log(cdata)
-                messages_html += message_html(i, cdata["name"], cdata["message"], cdata["timestamp"].split(" ")[1], cdata["otheruserpic"])
+                messages_html += message_html(i, cdata["name"], cdata["message"], cdata["timestamp"].split(" ")[1], cdata["otheruserpicid"])
             }
 
-            openPopup("Direct messages", "Richard Slaney", messages_html)
+            openPopup("Direct messages", userdata["firstname"] + " " + userdata["lastname"], messages_html)
             history.pushState({
                 "name": "messages",
-                "prevPage": {"title": "Direct messages", "title2": "Richard Slaney", "html": messages_html}
+                "prevPage": {"title": "Direct messages", "title2": userdata["firstname"] + " " + userdata["lastname"], "html": messages_html}
             }, null, "#messages")
         }
     };
@@ -214,7 +208,6 @@ function sendMessageDialogue() {
 
     xhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
-            console.log("Successfully loaded messages", xhttp.responseText);
             data = JSON.parse(xhttp.responseText);
             users = data["return"];
             select_html = "";
@@ -224,7 +217,6 @@ function sendMessageDialogue() {
             }
 
             openPopupPage("Send a message", "Messaging", "pages/send_message.html", function () {
-                console.log("Trying to put this in", select_html);
                 document.getElementById("recepient").innerHTML = select_html;
             })
         }
@@ -254,7 +246,6 @@ function viewConversation(userid) {
 
     xhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
-            console.log("Successfully loaded messages", xhttp.responseText);
             data = JSON.parse(xhttp.responseText);
             messages = data["return"];
             messages_html = "";
@@ -290,12 +281,10 @@ function addAreas() {
 
     xhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
-            console.log("Successfully loaded messages", xhttp.responseText);
             data = JSON.parse(xhttp.responseText);
             zones = data["return"];
             for (i in zones) {
                 zone = zones[i];
-                console.log(zone.wkt.coordinates[0][0])
                 coords = zone.wkt.coordinates[0][0]
 
                 gcoords = [];
@@ -303,8 +292,6 @@ function addAreas() {
                 for (i in coords) {
                     gcoords[i] = {lat: coords[i][0], lng: coords[i][1]}
                 }
-
-                console.log(gcoords)
 
                 // Construct the polygon.
                 var poly = new google.maps.Polygon({
@@ -332,19 +319,18 @@ function showHelp() {
 
     xhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
-            console.log("Successfully loaded messages", xhttp.responseText);
             data = JSON.parse(xhttp.responseText);
             helps = data["return"];
             help_html = "<span class='new_message' onclick='requestHelp()'>Request help</span>";
             for (i in helps) {
                 hdata = helps[i];
-                help_html += "<span class='help_box'><img src='" + hdata["imgpath"] + "'><h3>" + hdata["title"] + "</h3><h4>" + hdata["fullname"] + "</h4></span>"
+                help_html += "<span class='help_box'><img src='/uploaded_image?id=" + hdata["imgid"] + "'><h3>" + hdata["title"] + "</h3><h4>" + hdata["fullname"] + "</h4></span>"
             }
 
-            openPopup("Help requests", "Richard Slaney", help_html)
+            openPopup("Help requests", userdata["firstname"] + " " + userdata["lastname"], help_html)
             history.pushState({
                 "name": "messages",
-                "prevPage": {"title": "Help requests", "title2": "Richard Slaney", "html": help_html}
+                "prevPage": {"title": "Help requests", "title2": userdata["firstname"] + " " + userdata["lastname"], "html": help_html}
             }, null, "#helprequests")
         }
     };
@@ -355,7 +341,7 @@ function showHelp() {
 }
 
 function requestHelp() {
-    openPopupPage("Request help", "Richard Slaney", "pages/request_help.html")
+    openPopupPage("Request help", userdata["firstname"] + " " + userdata["lastname"], "pages/request_help.html")
 }
 
 function showLogin() {
@@ -382,13 +368,19 @@ function submitLogin() {
     xhr.send(formData); // Simple!
 }
 
+userdata = {
+    "firstname": "Anonymous",
+    "lastname": ""
+};
+
 function getID() {
     var xhttp = new XMLHttpRequest();
     xhttp.open("GET", "/api/getuser", false);
     xhttp.send()
     data = JSON.parse(xhttp.responseText);
     if (data["status"] === "success") {
-        return data["userid"]
+        userdata = data["alldata"];
+        return data["userid"];
     } else {
         return 0
     }
@@ -399,21 +391,19 @@ function showPoi() {
 
     xhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
-            console.log("Successfully loaded messages", xhttp.responseText);
             data = JSON.parse(xhttp.responseText);
             pois = data["return"];
             // id, lat, lng, title, description, userid, dst
-            poi_html = ""
+            poi_html = "";
             for (i in pois) {
                 hdata = pois[i];
-                console.log(hdata)
-                poi_html += "<span class='poi_box'><h3>" + hdata["title"] + "</h3><h4>" + hdata["description"] + "</h4><button type='button' onclick='google.maps.panTo(new google.maps.LatLng(" + hdata['lat'] + "," + hdata['lng'] + ")'>Find</button><h3>" + hdata['dst'] + "</h3></span>"
+                poi_html += "<span class='poi_box' onclick='map.panTo(new google.maps.LatLng(" + hdata['lat'] + "," + hdata['lng'] + ")); close_popup()'><h3>" + hdata["title"] + "</h3><h3 class='dist'>" + Math.round(hdata['dst'] * 10) / 10 + " km away</h3><br><p>" + hdata["description"] + "</p></span>"
             }
 
-            openPopup("Help requests", "Richard Slaney", poi_html )
+            openPopup("Points of interest", userdata["firstname"] + " " + userdata["lastname"], poi_html)
             history.pushState({
                 "name": "messages",
-                "prevPage": {"title": "Poi requests", "title2": "Richard Slaney", "html": poi_html}
+                "prevPage": {"title": "Poi requests", "title2": userdata["firstname"] + " " + userdata["lastname"], "html": poi_html}
             }, null, "#poirequests")
         }
     };
@@ -424,33 +414,73 @@ function showPoi() {
 }
 
 function showRoutes() {
-
     var xhttp = new XMLHttpRequest();
 
     xhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
-            console.log("Successfully loaded messages", xhttp.responseText);
             data = JSON.parse(xhttp.responseText);
             routes = data["return"];
             // line, reputation, title, description, timestamp
             for (i in routes) {
                 hdata = routes[i];
-                console.log(hdata);
                 map = document.getElementById("googleMap")
                 poly = new google.maps.Polyline({
                     strokeColor: '#FF0000',
                     strokeOpacity: 1.0,
-                    strokeWeight: 2.5 + (reputation/100),
+                    strokeWeight: 2.5 + (reputation / 100),
                     map: map,
                     path: google.maps.geometry.encoding.decodePath(hdata["line"])
-                  });
+                });
             }
 
-            openPopup("Help requests", "Richard Slaney", route_html )
+            openPopup("Help requests", userdata["firstname"] + " " + userdata["lastname"], route_html)
             history.pushState({
                 "name": "messages",
-                "prevPage": {"title": "Route requests", "title2": "Richard Slaney", "html": route_html}
+                "prevPage": {"title": "Route requests", "title2": userdata["firstname"] + " " + userdata["lastname"], "html": route_html}
             }, null, "#routerequests")
         }
     };
 }
+
+function readURL(input) {
+    if (input.files && input.files[0]) {
+        loadImage(
+            input.files[0],
+            function (img) {
+                document.getElementById("imgpreview").innerHTML = "";
+                document.getElementById("imgpreview").appendChild(img);
+            }
+        );
+    }
+}
+
+function ellipsizeTextBox(id) {
+    var el = document.getElementById(id);
+    var wordArray = el.innerHTML.split(' ');
+    while(el.scrollHeight > el.offsetHeight) {
+        wordArray.pop();
+        el.innerHTML = wordArray.join(' ') + '...';
+     }
+}
+
+function showNews() {
+    var xhttp = new XMLHttpRequest();
+
+    xhttp.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            data = JSON.parse(xhttp.responseText);
+            news = data["return"];
+
+            document.getElementById("scrollable_bubble").innerHTML = "<b>" + news[0]["title"] + ": </b> " + news[0]["contents"]
+            document.getElementById("scrollable_bubble").style.padding = "0 13px";
+            document.getElementById("title2").innerText = news[0]["timestamp"].split(" ")[1];
+
+            ellipsizeTextBox("scrollable_bubble")
+        }
+    };
+
+    xhttp.open("GET", "/api/news?lat=0&lng=0&r=200");
+
+    xhttp.send()
+}
+

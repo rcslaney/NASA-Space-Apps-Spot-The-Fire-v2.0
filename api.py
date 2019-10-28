@@ -23,7 +23,6 @@ def connect():
         return sql.connect(user='root', password='BananaShoestring490', unix_socket="/cloudsql/nasa-256322:europe-west1:sql-nasa", database='app')
 
 
-
 @api.route('/api/poi')
 def get_poi():
     # x,y is center of screen
@@ -53,12 +52,13 @@ def get_poi():
             cursor.execute(query, [lat, r, lng, r, lat, lng])
             ret_val = cursor.fetchall()
             for row in ret_val:
-                row["lat"] = float(row['lng'])
+                row["lat"] = float(row['lat'])
                 row['lng'] = float(row['lng'])
                 row['dst'] = geopy.distance.distance((row['lat'], row['lng']), (lat, lng)).km
             cursor.close()
             cnx.close()
             return json.dumps({"status": 'success', 'status_extended': '', 'return': ret_val})
+
 
 @api.route('/api/users')
 def get_users():
@@ -71,7 +71,7 @@ def get_users():
         return json.dumps({'status': 'error', 'status_extended': 'Couldnt connect to sql database'})
 
     cursor = cnx.cursor(dictionary=True)
-    query = ("SELECT id, Concat(firstname, ' ', lastname) as name, profilepicturepath, email, homelat, homelng, reputationscore "
+    query = ("SELECT id, Concat(firstname, ' ', lastname) as name, profilepictureid, email, homelat, homelng, reputationscore "
                 "FROM users "
                 "ORDER BY name DESC")
     # Do the query
@@ -245,11 +245,12 @@ def get_reports():
                 return json.dumps({'status': 'error', 'status_extended': 'Couldnt connect to sql database'})
 
             cursor = cnx.cursor(dictionary=True)
-            query = ("SELECT reports.id as rid, lat, lng, text, imgpath, score, userid, reporttype, timestamp, title, users.firstname as firstname,users.lastname as lastname "
+            query = ("SELECT reports.id as rid, lat, lng, text, imgid, score, userid, reporttype, timestamp, title, users.firstname as firstname,users.lastname as lastname "
                      "FROM reports "
                      "JOIN users on reports.userid=users.id "
                      "WHERE (ABS(lat-%s) <= %s) AND (ABS(lng-%s) <= %s) "
                      "ORDER BY POWER(lat-%s, 2) + POWER(lng-%s, 2) ASC")
+
             # Do the query
             cursor.execute(query, [float(lat), float(r), float(lng), float(r), float(lat), float(lng)])
             ret_val = cursor.fetchall()
@@ -259,6 +260,7 @@ def get_reports():
                 row['lng'] = float(row['lng'])
                 row["timestamp"] = datetime.datetime.strftime(row["timestamp"], '%Y-%m-%d %H:%M:%S')
                 row['dst'] = geopy.distance.distance((row['lat'],row['lng'] ), (float(lat), float(lng))).km
+
             cursor.close()
             cnx.close()
             return json.dumps({"status": 'success', 'status_extended': '', 'return': ret_val})
@@ -284,7 +286,7 @@ def get_help():
                 return json.dumps({'status': 'error', 'status_extended': 'Couldnt connect to sql database'})
 
             cursor = cnx.cursor(dictionary=True)
-            query = ("SELECT helps.id as hid, lat, lng,  users.profilepicturepath as imgpath, userid, `timestamp`,  CONCAT(users.firstname, ' ', users.lastname) as fullname, title,description "
+            query = ("SELECT helps.id as hid, lat, lng,  users.profilepictureid as imgid, userid, `timestamp`,  CONCAT(users.firstname, ' ', users.lastname) as fullname, title,description "
                      "FROM helps "
                      "JOIN users on helps.userid=users.id "
                      "WHERE (ABS(lat - %s) <= %s) AND (ABS(lng - %s) <= %s) "
@@ -301,6 +303,8 @@ def get_help():
             cursor.close()
             cnx.close()
             return json.dumps({"status": 'success', 'status_extended': '', 'return': ret_val})
+
+
 @api.route('/api/messages')
 def get_messages():
     args = request.args
@@ -322,7 +326,7 @@ def get_messages():
 
             cursor = cnx.cursor(dictionary=True)
             query = ("SELECT messages.id as mid,userfromid,u1.firstname as userfromfirst, u1.lastname as userfromlast,usertoid, u2.firstname as usertofirst, "
-                     "u2.lastname as usertolast, u1.profilepicturepath as userfrompic, u2.profilepicturepath as usertopic, message, timestamp "
+                     "u2.lastname as usertolast, u1.profilepictureid as userfrompicid, u2.profilepictureid as usertopicid, message, timestamp "
                      "FROM messages "
                      "JOIN users as u1 ON userfromid=u1.id "
                      "JOIN users as u2 ON usertoid=u2.id "
@@ -337,13 +341,13 @@ def get_messages():
             cnx.close()
             for val in ret_val:
                 if(val["userfromid"] == userid):
-                    val["otheruserpic"] = val["usertopic"]
+                    val["otheruserpicid"] = val["usertopicid"]
                 elif(val["usertoid"] == userid):
-                    val["otheruserpic"] = val["userfrompic"]
+                    val["otheruserpicid"] = val["userfrompicid"]
                 else:
                     print("What? Fail in messages call")
-                del(val["usertopic"])
-                del(val["userfrompic"])
+                del(val["usertopicid"])
+                del(val["userfrompicid"])
                 val["timestamp"] = datetime.datetime.strftime(val["timestamp"], '%Y-%m-%d %H:%M:%S')
             # del(latest[int(userid)])
             return json.dumps({"status": 'success', 'status_extended': '', 'return': ret_val})
@@ -370,7 +374,7 @@ def get_preview():
             cursor = cnx.cursor(dictionary=True)
 
             query = ("SELECT messages.id as mid,userfromid,u1.firstname as userfromfirst, u1.lastname as userfromlast,usertoid, u2.firstname as usertofirst, "
-                     "u2.lastname as usertolast, u1.profilepicturepath as userfrompic, u2.profilepicturepath as usertopic,message, timestamp "
+                     "u2.lastname as usertolast, u1.profilepictureid as userfrompicid, u2.profilepictureid as usertopicid, message, timestamp "
                      "FROM messages "
                      "JOIN users as u1 ON userfromid=u1.id "
                      "JOIN users as u2 ON usertoid=u2.id "
@@ -387,11 +391,11 @@ def get_preview():
                 if row["userfromid"] == int(userid):
                     otheruser = row["usertoid"]
                     dict_insert['name'] = row["usertofirst"] + " " + row["usertolast"]
-                    dict_insert["otheruserpic"] = row["usertopic"]
+                    dict_insert["otheruserpicid"] = row["usertopicid"]
                 elif row["usertoid"] == int(userid):
                     otheruser = row["userfromid"]
                     dict_insert['name'] = row['userfromfirst'] + " " + row['userfromlast']
-                    dict_insert["otheruserpic"] = row["userfrompic"]
+                    dict_insert["otheruserpicid"] = row["userfrompicid"]
                 else:
                     print("Not by user")
                 if otheruser in latest.keys():
@@ -607,7 +611,7 @@ def get_user():
         return json.dumps({'status': 'error', 'status_extended': 'Couldnt connect to sql database'})
 
     cursor = cnx.cursor(dictionary=True)
-    query = ("SELECT id "
+    query = ("SELECT id, firstname, lastname, email "
              "FROM users "
              "WHERE session = %s ")
 
@@ -616,8 +620,7 @@ def get_user():
     ret_val = cursor.fetchall()
 
     if len(ret_val) == 1:
-        print(repr(ret_val))
-        return json.dumps({"status": "success", "status_extended": "", "userid": ret_val[0]["id"]})
+        return json.dumps({"status": "success", "status_extended": "", "userid": ret_val[0]["id"], "alldata": ret_val[0]})
     else:
         return json.dumps({"status": "error", "status_extended": "Not logged in"})
 

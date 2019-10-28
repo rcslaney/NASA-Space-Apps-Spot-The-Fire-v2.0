@@ -1,13 +1,18 @@
-
 <form id="reportform">
     <div style="display: flex;">
-        <input id="fireimage" name="fireimage" type="file" accept="image/*;capture=camera" onchange="document.getElementById('fireimagetext').innerHTML = 'File: ' + this.files[0]['name'];">
+        <input id="fireimage" name="fireimage" type="file" onchange="document.getElementById('fireimagetext').innerHTML = 'File: ' + this.files[0]['name']; readURL(this)">
         <label for="fireimage" id="uploadfile">Upload image</label>
         <span id="fireimagetext">No file</span>
     </div>
-    <textarea placeholder="Enter a description of the reported event here" id="reportdescription"></textarea>
-    <label for="lat">Latitude:&nbsp;&nbsp;&nbsp; </label><input type="text" name="lat" id="lat"><br><br>
-    <label for="lat">Longitude: </label><input type="text" name="lng" id="lng" onload="navigator.geolocation.getCurrentPosition(populateFormPosition);"><br><br>
-    <span>Autofill location with: <span style="text-decoration: underline; cursor: pointer;" onclick="navigator.geolocation.getCurrentPosition(populateFormPositionGPS)">Your location</span> or <span style="text-decoration: underline; cursor: pointer;" onclick="populateFormPositionMap()">selected map location</span></span>
-    <button onclick="submitReport()" type="button">Submit report</button>
+    <span id="imgpreview">
+        <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs%3D">
+    </span>
+    <textarea placeholder="Enter a description of the reported event here" id="reportdescription"></textarea><br><br>
+    <label for="lat">Location:&nbsp;&nbsp;&nbsp; </label><br><br><input type="text" name="lat" id="lat"
+                                                                        placeholder="Latitude">&nbsp;&nbsp;<input
+        type="text" name="lng" id="lng" placeholder="Longitude"><br><br>
+    <button type="button" onclick="navigator.geolocation.getCurrentPosition(populateFormPositionGPS)">Your location
+    </button>&nbsp;<button type="button" onclick="populateFormPositionMap()">Map location</button>
+    <br><br>
+    <button onclick="submitReport()" type="button" style="background: #3A3">Submit report</button>
 </form>
